@@ -53,9 +53,9 @@
         "@types/node": "^20.10.0"
     },
       "scripts": {
-        "dev": "vite",
-        "build": "vite build",
-        "preview": "vite preview --host 0.0.0.0 --port $PORT",
-        "start": "vite preview --host 0.0.0.0 --port $PORT"
+        "dev": "npx vite",
+        "build": "npx vite build",
+        "preview": "npx vite preview --host 0.0.0.0 --port $PORT",
+        "start": "npx vite preview --host 0.0.0.0 --port $PORT"
     }
   }
