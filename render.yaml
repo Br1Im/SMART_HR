@@ -2,7 +2,7 @@ services:
   - type: web
     name: smartcourse
     env: static
-    buildCommand: npm install && npm run build
+    buildCommand: npm install && npx vite build
     staticPublishPath: ./dist
     routes:
       - type: rewrite
