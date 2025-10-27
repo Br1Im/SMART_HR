@@ -1,0 +1,96 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Enum values as constants for SQLite compatibility
+// Role: ADMIN, CURATOR, CLIENT, CANDIDATE
+// ConsentType: PERSONAL_DATA, MARKETING, ANALYTICS, COOKIES  
+// AuditAction: CREATE, READ, UPDATE, DELETE, LOGIN, LOGOUT
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  fullName  String
+  role      String   @default("CANDIDATE")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Связи
+  ownedOrgs    Org[]       @relation("OrgOwner")
+  auditLogs    AuditLog[]
+  consents     Consent[]
+
+  @@map("users")
+}
+
+model Org {
+  id        String   @id @default(cuid())
+  name      String
+  inn       String   @unique
+  site      String?
+  status    String   @default("active")
+  ownerId   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Связи
+  owner     User      @relation("OrgOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  contacts  Contact[]
+
+  @@map("organizations")
+}
+
+model Contact {
+  id        String   @id @default(cuid())
+  fullName  String
+  email     String   @unique
+  phone     String?
+  role      String?
+  orgId     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Связи
+  organization Org @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@map("contacts")
+}
+
+model AuditLog {
+  id        String      @id @default(cuid())
+  userId    String
+  action    String
+  entity    String      // Название сущности (User, Org, Contact)
+  entityId  String      // ID сущности
+  details   String?     // JSON с деталями изменений
+  timestamp DateTime    @default(now())
+
+  // Связи
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("audit_logs")
+}
+
+model Consent {
+  id        String      @id @default(cuid())
+  userId    String
+  type      String
+  grantedAt DateTime    @default(now())
+  basis     String      // Основание для обработки (согласие, договор, etc.)
+  details   String?     // Дополнительная информация
+
+  // Связи
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, type])
+  @@map("consents")
+}

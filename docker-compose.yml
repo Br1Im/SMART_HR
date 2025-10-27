@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  # База данных PostgreSQL
+  database:
+    image: postgres:15-alpine
+    container_name: smartcourse-db
+    environment:
+      POSTGRES_DB: smartcourse
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - smartcourse-network
+
+  # Backend сервис
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: smartcourse-backend
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://postgres:postgres@database:5432/smartcourse
+      - JWT_SECRET=your-super-secret-jwt-key-change-in-production
+      - PORT=3001
+    ports:
+      - "3001:3001"
+    depends_on:
+      - database
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    networks:
+      - smartcourse-network
+    command: npm run start:dev
+
+  # Frontend сервис
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: smartcourse-frontend
+    environment:
+      - VITE_API_URL=http://localhost:3001/api
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - smartcourse-network
+    command: npm run dev
+
+volumes:
+  postgres_data:
+
+networks:
+  smartcourse-network:
+    driver: bridge
