@@ -14,7 +14,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, fullName: string, role: string) => Promise<void>;
+  register: (email: string, password: string, fullName: string, role: string, adminPassword?: string) => Promise<void>;
   logout: () => void;
   error: string | null;
   clearError: () => void;
@@ -50,7 +50,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           const profile = await apiClient.getProfile();
           setUser(profile);
         } catch (error) {
-          // Токен недействителен, удаляем его
           apiClient.removeToken();
           setUser(null);
         }
@@ -82,7 +81,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const register = async (email: string, password: string, fullName: string, role: string = 'CANDIDATE') => {
+  const register = async (email: string, password: string, fullName: string, role: string = 'CANDIDATE', adminPassword?: string) => {
     try {
       setIsLoading(true);
       setError(null);
@@ -91,7 +90,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         email, 
         password, 
         fullName, 
-        role 
+        role,
+        adminPassword 
       });
       
       // Сохраняем токен

@@ -1,0 +1,1 @@
+export { withRole, ROLES, type Role } from './withRole';

@@ -8,6 +8,8 @@ import { AuthModule } from './auth/auth.module';
 import { CrmModule } from './crm/crm.module';
 import { AuditModule } from './audit/audit.module';
 import { AuditInterceptor } from './audit/audit.interceptor';
+import { CoursesModule } from './courses/courses.module';
+import { BlocksModule } from './blocks/blocks.module';
 
 @Module({
   imports: [
@@ -18,6 +20,8 @@ import { AuditInterceptor } from './audit/audit.interceptor';
     AuthModule,
     CrmModule,
     AuditModule,
+    CoursesModule,
+    BlocksModule,
   ],
   controllers: [AppController],
   providers: [

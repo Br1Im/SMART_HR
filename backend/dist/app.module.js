@@ -17,6 +17,8 @@ const auth_module_1 = require("./auth/auth.module");
 const crm_module_1 = require("./crm/crm.module");
 const audit_module_1 = require("./audit/audit.module");
 const audit_interceptor_1 = require("./audit/audit.interceptor");
+const courses_module_1 = require("./courses/courses.module");
+const blocks_module_1 = require("./blocks/blocks.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -30,6 +32,8 @@ exports.AppModule = AppModule = __decorate([
             auth_module_1.AuthModule,
             crm_module_1.CrmModule,
             audit_module_1.AuditModule,
+            courses_module_1.CoursesModule,
+            blocks_module_1.BlocksModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [

@@ -7,12 +7,12 @@ export declare class AuditController {
             user: {
                 email: string;
                 fullName: string;
-                role: string;
+                role: import(".prisma/client").$Enums.UserRole;
                 id: string;
             };
         } & {
             id: string;
-            action: string;
+            action: import(".prisma/client").$Enums.AuditAction;
             entity: string;
             entityId: string;
             details: string | null;
@@ -29,7 +29,7 @@ export declare class AuditController {
     getAuditStats(req: any): Promise<{
         totalLogs: number;
         actionStats: {
-            action: string;
+            action: import(".prisma/client").$Enums.AuditAction;
             count: number;
         }[];
         entityStats: {
@@ -44,7 +44,7 @@ export declare class AuditController {
             };
         } & {
             id: string;
-            action: string;
+            action: import(".prisma/client").$Enums.AuditAction;
             entity: string;
             entityId: string;
             details: string | null;
@@ -56,12 +56,12 @@ export declare class AuditController {
         user: {
             email: string;
             fullName: string;
-            role: string;
+            role: import(".prisma/client").$Enums.UserRole;
             id: string;
         };
     } & {
         id: string;
-        action: string;
+        action: import(".prisma/client").$Enums.AuditAction;
         entity: string;
         entityId: string;
         details: string | null;

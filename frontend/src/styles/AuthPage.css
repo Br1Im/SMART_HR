@@ -167,6 +167,17 @@
   background: white;
 }
 
+.auth-input select,
+select.auth-input {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+  background-size: 16px;
+  padding-right: 45px;
+}
+
 .auth-input:focus {
   outline: none;
   border-color: var(--primary);
@@ -404,19 +415,25 @@
 }
 
 /* Темная тема */
-@media (prefers-color-scheme: dark) {
-  .auth-form {
-    background: rgba(30, 30, 30, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-  }
-  
-  .auth-input {
-    background: #1f2937;
-    border-color: #374151;
-    color: white;
-  }
-  
-  .auth-input:focus {
-    border-color: var(--primary);
-  }
+.dark .auth-form {
+  background: rgba(30, 30, 30, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dark .auth-input {
+  background: #1f2937;
+  border-color: #374151;
+  color: white;
+}
+
+.dark .auth-input:focus {
+  border-color: var(--primary);
+}
+
+.dark .auth-input::placeholder {
+  color: #9ca3af;
+}
+
+.dark .form-group label {
+  color: #f3f4f6;
 }

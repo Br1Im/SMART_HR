@@ -11,24 +11,34 @@ export class RbacService {
     'ADMIN': [
       { resource: '*', actions: ['*'] }, // Админ имеет доступ ко всему
     ],
-    'MANAGER': [
-      { resource: 'crm', actions: ['read', 'create', 'update', 'delete'] },
+    'CURATOR': [
+      { resource: 'courses', actions: ['read', 'create', 'update', 'delete'] },
+      { resource: 'lessons', actions: ['read', 'create', 'update', 'delete'] },
+      { resource: 'quizzes', actions: ['read', 'create', 'update', 'delete'] },
+      { resource: 'students', actions: ['read'] },
+      { resource: 'progress', actions: ['read'] },
+      { resource: 'audit', actions: ['read'] },
       { resource: 'organizations', actions: ['read', 'create', 'update', 'delete'] },
       { resource: 'contacts', actions: ['read', 'create', 'update', 'delete'] },
-      { resource: 'vacancies', actions: ['read', 'create', 'update', 'delete'] },
-      { resource: 'candidates', actions: ['read', 'create', 'update', 'delete'] },
-      { resource: 'audit', actions: ['read'] },
     ],
     'CLIENT': [
-      { resource: 'organizations', actions: ['read', 'update'] }, // Только свои
-      { resource: 'contacts', actions: ['read', 'create', 'update', 'delete'] }, // Только свои
-      { resource: 'vacancies', actions: ['read', 'create', 'update', 'delete'] }, // Только свои
-      { resource: 'candidates', actions: ['read'] }, // Только для своих вакансий
+      { resource: 'courses', actions: ['read'] },
+      { resource: 'lessons', actions: ['read'] },
+      { resource: 'quizzes', actions: ['read'] },
+      { resource: 'progress', actions: ['read', 'update'] }, // Свой прогресс
+      { resource: 'profile', actions: ['read', 'update'] },
+      { resource: 'organizations', actions: ['read'] }, // Только просмотр организаций
+      { resource: 'contacts', actions: ['read'] }, // Только просмотр контактов
     ],
     'CANDIDATE': [
       { resource: 'courses', actions: ['read'] },
+      { resource: 'lessons', actions: ['read'] },
+      { resource: 'quizzes', actions: ['read'] },
+      { resource: 'progress', actions: ['read', 'update'] }, // Свой прогресс
       { resource: 'profile', actions: ['read', 'update'] },
       { resource: 'applications', actions: ['read', 'create'] },
+      { resource: 'organizations', actions: ['read'] }, // Только просмотр организаций
+      { resource: 'contacts', actions: ['read'] }, // Только просмотр контактов
     ],
   };
 

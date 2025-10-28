@@ -9,7 +9,7 @@ export declare class ConsentController {
         id: string;
         details: string | null;
         userId: string;
-        type: string;
+        type: import(".prisma/client").$Enums.ConsentType;
         grantedAt: Date;
         basis: string;
     }>;
@@ -17,7 +17,7 @@ export declare class ConsentController {
         id: string;
         details: string | null;
         userId: string;
-        type: string;
+        type: import(".prisma/client").$Enums.ConsentType;
         grantedAt: Date;
         basis: string;
     }[]>;
@@ -25,7 +25,7 @@ export declare class ConsentController {
         id: string;
         details: string | null;
         userId: string;
-        type: string;
+        type: import(".prisma/client").$Enums.ConsentType;
         grantedAt: Date;
         basis: string;
     }[]>;
@@ -39,7 +39,7 @@ export declare class ConsentController {
             id: string;
             details: string | null;
             userId: string;
-            type: string;
+            type: import(".prisma/client").$Enums.ConsentType;
             grantedAt: Date;
             basis: string;
         })[];
@@ -51,7 +51,7 @@ export declare class ConsentController {
         };
     }>;
     getConsentStats(req: any): Promise<{
-        consentType: string;
+        consentType: import(".prisma/client").$Enums.ConsentType;
         count: number;
     }[]>;
     checkConsent(consentType: string, req: any): Promise<boolean>;

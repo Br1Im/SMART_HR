@@ -5,10 +5,10 @@ import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { StatusIcon } from './StatusIcon';
 import { EmptyState } from './EmptyState';
-import { Course, Status } from '../types';
-import { mockCourses } from '../data/mockData';
+import { Course } from '../types';
 import { Header } from './layout/Header';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
+import apiClient from '../lib/api';
 
 interface CoursesListProps {
   onCourseSelect: (courseId: string) => void;
@@ -20,10 +20,28 @@ interface CoursesListProps {
 type ViewMode = 'grid' | 'list';
 
 export function CoursesList({ onCourseSelect, onCreateCourse, darkMode, toggleTheme }: CoursesListProps) {
-  const [courses] = useState<Course[]>(mockCourses);
+  const [courses, setCourses] = useState<Course[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<Status | 'all'>('all');
+  const [statusFilter, setStatusFilter] = useState<'draft' | 'published' | 'hidden' | 'all'>('all');
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
+  const [loading, setLoading] = useState(true);
+
+  // Загрузка курсов из API
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        setLoading(true);
+        const coursesData = await apiClient.getCourses();
+        setCourses(coursesData);
+      } catch (error) {
+        console.error('Ошибка при загрузке курсов:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCourses();
+  }, []);
 
   // Load view mode from localStorage on component mount
   useEffect(() => {
@@ -41,8 +59,8 @@ export function CoursesList({ onCourseSelect, onCreateCourse, darkMode, toggleTh
   const filteredCourses = useMemo(() => {
     return courses.filter(course => {
       const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           course.description.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesStatus = statusFilter === 'all' || course.status === statusFilter;
+                           (course.description?.toLowerCase() || '').includes(searchTerm.toLowerCase());
+      const matchesStatus = statusFilter === 'all' || (course.isPublished ? 'published' : 'draft') === statusFilter;
       return matchesSearch && matchesStatus;
     });
   }, [courses, searchTerm, statusFilter]);
@@ -141,9 +159,9 @@ export function CoursesList({ onCourseSelect, onCreateCourse, darkMode, toggleTh
                               {course.title}
                             </CardTitle>
                           </div>
-                          <CardDescription className="text-sm text-muted-foreground leading-relaxed break-words">{course.description}</CardDescription>
+                          <CardDescription className="text-sm text-muted-foreground leading-relaxed break-words">{course.description || 'Описание отсутствует'}</CardDescription>
                         </div>
-                        <StatusIcon status={course.status} className="ml-2 text-lg flex-shrink-0 p-1 bg-muted rounded-full" />
+                        <StatusIcon status={course.isPublished ? 'published' : 'draft'} className="ml-2 text-lg flex-shrink-0 p-1 bg-muted rounded-full" />
                       </div>
                     </CardHeader>
                     <CardContent className="flex-1 flex flex-col justify-between p-4 pt-2 h-full">
@@ -154,7 +172,7 @@ export function CoursesList({ onCourseSelect, onCreateCourse, darkMode, toggleTh
                           Обновлён: {new Date(course.updatedAt).toLocaleDateString('ru-RU')}
                         </span>
                         <span className="font-medium text-blue-600 dark:text-blue-400">
-                          {course.modules.reduce((total, module) => total + module.lessons.length, 0)} уроков
+                          {course.blocks?.length || 0} блоков
                         </span>
                       </div>
                       <div className="flex gap-2">
@@ -215,16 +233,16 @@ export function CoursesList({ onCourseSelect, onCreateCourse, darkMode, toggleTh
                               <h3 className="text-lg font-semibold text-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-all duration-200 truncate">
                                 {course.title}
                               </h3>
-                              <StatusIcon status={course.status} className="text-sm flex-shrink-0 p-1 bg-muted rounded-full" />
+                              <StatusIcon status={course.isPublished ? 'published' : 'draft'} className="text-sm flex-shrink-0 p-1 bg-muted rounded-full" />
                             </div>
-                            <p className="text-sm text-muted-foreground leading-relaxed break-words mb-2">{course.description}</p>
+                            <p className="text-sm text-muted-foreground leading-relaxed break-words mb-2">{course.description || 'Описание отсутствует'}</p>
                             <div className="flex items-center justify-between text-xs text-muted-foreground">
                               <span className="flex items-center gap-1">
                                 <span className="w-1 h-1 bg-blue-400 rounded-full"></span>
                                 Обновлён: {new Date(course.updatedAt).toLocaleDateString('ru-RU')}
                               </span>
                               <span className="font-medium text-blue-600 dark:text-blue-400">
-                                {course.modules.reduce((total, module) => total + module.lessons.length, 0)} уроков
+                                {course.blocks?.length || 0} блоков
                               </span>
                             </div>
                           </div>

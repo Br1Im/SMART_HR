@@ -31,8 +31,13 @@ __decorate([
     __metadata("design:type", String)
 ], RegisterDto.prototype, "fullName", void 0);
 __decorate([
-    (0, class_validator_1.IsIn)(['ADMIN', 'MANAGER', 'CANDIDATE'], { message: 'Недопустимая роль' }),
+    (0, class_validator_1.IsIn)(['ADMIN', 'CURATOR', 'CLIENT', 'CANDIDATE'], { message: 'Недопустимая роль' }),
     (0, class_validator_1.IsNotEmpty)({ message: 'Роль обязательна' }),
     __metadata("design:type", String)
 ], RegisterDto.prototype, "role", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)({ message: 'Пароль администратора должен быть строкой' }),
+    __metadata("design:type", String)
+], RegisterDto.prototype, "adminPassword", void 0);
 //# sourceMappingURL=register.dto.js.map

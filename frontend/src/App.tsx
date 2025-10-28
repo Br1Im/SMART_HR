@@ -2,11 +2,17 @@ import { BrowserRouter as Router, Route, Routes, Link, useNavigate, useParams } 
 import LandingPage from './components/LandingPage';
 import { CoursesList } from './components/CoursesList';
 import { CourseEditor } from './components/CourseEditor';
+import { CreateCourse } from './components/CreateCourse';
 import { StudentView } from './components/StudentView';
 import { QuizResults } from './components/QuizResults';
+import { ProtectedRoute } from './components/ProtectedRoute';
 import { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import './styles/AuthPage.css';
+import ConsentsPage from './components/settings/ConsentsPage';
+import { OrganizationsList } from './components/crm/OrganizationsList';
+import { OrganizationDetails } from './components/crm/OrganizationDetails';
+import { ContactsList } from './components/crm/ContactsList';
 
 // Компонент-обертка для редактора курса
 function EditorWrapper({ darkMode, toggleTheme }: { darkMode: boolean, toggleTheme: () => void }) {
@@ -31,6 +37,8 @@ function AuthPage() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [fullName, setFullName] = useState('');
+  const [role, setRole] = useState('CLIENT');
+  const [adminPassword, setAdminPassword] = useState('');
   const navigate = useNavigate();
   const { login, register, error, isLoading, clearError } = useAuth();
 
@@ -53,13 +61,17 @@ function AuthPage() {
         alert('Пароли не совпадают');
         return;
       }
+      if (role === 'ADMIN' && !adminPassword) {
+        alert('Для роли администратора требуется специальный пароль');
+        return;
+      }
     }
     
     try {
       if (isLogin) {
         await login(email, password);
       } else {
-        await register(email, password, fullName, 'CLIENT');
+        await register(email, password, fullName, role, adminPassword);
       }
       // Переход на страницу курсов после успешного входа/регистрации
       navigate('/courses');
@@ -117,6 +129,39 @@ function AuthPage() {
               />
             </div>
           )}
+
+          {!isLogin && (
+            <div className="form-group">
+              <label htmlFor="role">Роль</label>
+              <select
+                id="role"
+                className="auth-input"
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                required
+              >
+                <option value="CLIENT">Клиент</option>
+                <option value="CANDIDATE">Кандидат</option>
+                <option value="CURATOR">Куратор</option>
+                <option value="ADMIN">Администратор</option>
+              </select>
+            </div>
+          )}
+
+          {!isLogin && role === 'ADMIN' && (
+            <div className="form-group">
+              <label htmlFor="adminPassword">Пароль администратора</label>
+              <input
+                type="password"
+                id="adminPassword"
+                className="auth-input"
+                value={adminPassword}
+                onChange={(e) => setAdminPassword(e.target.value)}
+                placeholder="Введите пароль администратора"
+                required
+              />
+            </div>
+          )}
           
           <div className="form-group">
             <label htmlFor="email">Email</label>
@@ -162,6 +207,30 @@ function AuthPage() {
           <button type="submit" className="auth-button" disabled={isLoading}>
             {isLoading ? 'Загрузка...' : (isLogin ? 'Войти' : 'Зарегистрироваться')}
           </button>
+          
+          {isLogin && (
+            <button 
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                setEmail('test@example.com');
+                setPassword('Test123!');
+              }} 
+              className="auth-button" 
+              style={{ 
+                marginTop: '15px', 
+                backgroundColor: '#10b981', 
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                fontWeight: '600',
+                boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)'
+              }}
+            >
+              <span style={{ fontSize: '18px' }}>🔑</span> Тестовый аккаунт
+            </button>
+          )}
         </form>
         
         <div className="auth-footer">
@@ -203,38 +272,12 @@ export default function App() {
   });
 
   const toggleTheme = () => {
-    // Создаем эффект плавного перехода
-    const overlay = document.createElement('div');
-    overlay.style.position = 'fixed';
-    overlay.style.top = '0';
-    overlay.style.left = '0';
-    overlay.style.width = '100vw';
-    overlay.style.height = '100vh';
-    overlay.style.backgroundColor = darkMode ? 'rgba(249, 250, 251, 0)' : 'rgba(17, 24, 39, 0)';
-    overlay.style.zIndex = '9999';
-    overlay.style.pointerEvents = 'none';
-    overlay.style.transition = 'background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
-    document.body.appendChild(overlay);
-
-    // Активируем анимацию
-    setTimeout(() => {
-      overlay.style.backgroundColor = darkMode ? 'rgba(249, 250, 251, 0.1)' : 'rgba(17, 24, 39, 0.1)';
-    }, 10);
-
     setDarkMode(prev => {
       const newDarkMode = !prev;
       // Сохраняем тему в localStorage
       localStorage.setItem('darkMode', String(newDarkMode));
       return newDarkMode;
     });
-
-    // Удаляем overlay после завершения анимации
-    setTimeout(() => {
-      overlay.style.backgroundColor = 'transparent';
-      setTimeout(() => {
-        document.body.removeChild(overlay);
-      }, 400);
-    }, 200);
   };
 
   useEffect(() => {
@@ -258,17 +301,69 @@ export default function App() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/auth" element={<AuthPage />} />
-          <Route path="/courses" element={<CoursesList 
-            onCourseSelect={(courseId) => window.location.href = `/editor/${courseId}`} 
-            onCreateCourse={() => {}} 
-            darkMode={darkMode} 
-            toggleTheme={toggleTheme} 
-          />} />
-          <Route path="/editor/:courseId" element={
-            <EditorWrapper darkMode={darkMode} toggleTheme={toggleTheme} />
+          
+          {/* Защищённые маршруты для всех авторизованных пользователей */}
+          <Route path="/courses" element={
+            <ProtectedRoute>
+              <CoursesList 
+                onCourseSelect={(courseId) => window.location.href = `/editor/${courseId}`} 
+                onCreateCourse={() => window.location.href = '/courses/create'} 
+                darkMode={darkMode} 
+                toggleTheme={toggleTheme} 
+              />
+            </ProtectedRoute>
           } />
-          <Route path="/student/:courseId" element={<StudentView courseId='' onBack={() => {}} />} />
-          <Route path="/results" element={<QuizResults onBack={() => {}} />} />
+          
+          {/* Маршруты только для кураторов и админов */}
+          <Route path="/courses/create" element={
+            <ProtectedRoute allowedRoles={['ADMIN', 'CURATOR']}>
+              <CreateCourse />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/editor/:courseId" element={
+            <ProtectedRoute allowedRoles={['ADMIN', 'CURATOR']}>
+              <EditorWrapper darkMode={darkMode} toggleTheme={toggleTheme} />
+            </ProtectedRoute>
+          } />
+          
+          {/* Маршруты для студентов (клиенты и кандидаты) */}
+          <Route path="/student/:courseId" element={
+            <ProtectedRoute allowedRoles={['CLIENT', 'CANDIDATE']}>
+              <StudentView courseId='' onBack={() => {}} />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/results" element={
+            <ProtectedRoute allowedRoles={['CLIENT', 'CANDIDATE']}>
+              <QuizResults onBack={() => {}} />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/settings/consents" element={
+            <ProtectedRoute>
+              <ConsentsPage />
+            </ProtectedRoute>
+          } />
+          
+          {/* CRM маршруты */}
+          <Route path="/crm/orgs" element={
+            <ProtectedRoute allowedRoles={['ADMIN', 'MANAGER', 'CANDIDATE']}>
+              <OrganizationsList />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/crm/orgs/:id" element={
+            <ProtectedRoute allowedRoles={['ADMIN', 'MANAGER', 'CANDIDATE']}>
+              <OrganizationDetails />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/crm/contacts" element={
+            <ProtectedRoute allowedRoles={['ADMIN', 'MANAGER', 'CLIENT']}>
+              <ContactsList />
+            </ProtectedRoute>
+          } />
         </Routes>
       </Router>
     </AuthProvider>

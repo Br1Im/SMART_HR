@@ -24,7 +24,7 @@ export class ContactsController {
   constructor(private readonly contactsService: ContactsService) {}
 
   @Post()
-  @Roles('ADMIN', 'MANAGER', 'CLIENT')
+  @Roles('ADMIN', 'CURATOR')
   @Resource('contacts')
   @Action('create')
   create(@Body() createContactDto: CreateContactDto, @Request() req) {
@@ -32,7 +32,7 @@ export class ContactsController {
   }
 
   @Get()
-  @Roles('ADMIN', 'MANAGER', 'CLIENT')
+  @Roles('ADMIN', 'CURATOR', 'CLIENT', 'CANDIDATE')
   @Resource('contacts')
   @Action('read')
   findAll(
@@ -56,7 +56,7 @@ export class ContactsController {
   }
 
   @Get(':id')
-  @Roles('ADMIN', 'MANAGER', 'CLIENT')
+  @Roles('ADMIN', 'CURATOR', 'CLIENT', 'CANDIDATE')
   @Resource('contacts')
   @Action('read')
   findOne(@Param('id') id: string, @Request() req) {
@@ -64,7 +64,7 @@ export class ContactsController {
   }
 
   @Patch(':id')
-  @Roles('ADMIN', 'MANAGER', 'CLIENT')
+  @Roles('ADMIN', 'CURATOR')
   @Resource('contacts')
   @Action('update')
   update(
@@ -81,7 +81,7 @@ export class ContactsController {
   }
 
   @Delete(':id')
-  @Roles('ADMIN', 'MANAGER', 'CLIENT')
+  @Roles('ADMIN', 'CURATOR')
   @Resource('contacts')
   @Action('delete')
   remove(@Param('id') id: string, @Request() req) {

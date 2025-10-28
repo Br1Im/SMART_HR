@@ -1,4 +1,4 @@
-import { IsEmail, IsString, MinLength, IsIn, IsNotEmpty } from 'class-validator';
+import { IsEmail, IsString, MinLength, IsIn, IsNotEmpty, IsOptional } from 'class-validator';
 
 export class RegisterDto {
   @IsEmail({}, { message: 'Некорректный email адрес' })
@@ -14,7 +14,11 @@ export class RegisterDto {
   @IsNotEmpty({ message: 'Полное имя обязательно' })
   fullName: string;
 
-  @IsIn(['ADMIN', 'MANAGER', 'CANDIDATE'], { message: 'Недопустимая роль' })
+  @IsIn(['ADMIN', 'CURATOR', 'CLIENT', 'CANDIDATE'], { message: 'Недопустимая роль' })
   @IsNotEmpty({ message: 'Роль обязательна' })
   role: string;
+
+  @IsOptional()
+  @IsString({ message: 'Пароль администратора должен быть строкой' })
+  adminPassword?: string;
 }

@@ -8,16 +8,16 @@ export declare class OrganizationsService {
         _count: {
             contacts: number;
         };
-        contacts: {
-            email: string;
-            fullName: string;
-            id: string;
-        }[];
         owner: {
             email: string;
             fullName: string;
             id: string;
         };
+        contacts: {
+            email: string;
+            fullName: string;
+            id: string;
+        }[];
     } & {
         id: string;
         createdAt: Date;
@@ -56,6 +56,11 @@ export declare class OrganizationsService {
         };
     }>;
     findOne(id: string, userId: string, userRole: string): Promise<{
+        owner: {
+            email: string;
+            fullName: string;
+            id: string;
+        };
         contacts: {
             email: string;
             fullName: string;
@@ -63,11 +68,6 @@ export declare class OrganizationsService {
             createdAt: Date;
             phone: string;
         }[];
-        owner: {
-            email: string;
-            fullName: string;
-            id: string;
-        };
     } & {
         id: string;
         createdAt: Date;

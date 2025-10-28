@@ -4,7 +4,7 @@ export declare class AuditService {
     constructor(prisma: PrismaService);
     createAuditLog(userId: string, action: string, entity: string, entityId?: string, details?: any): Promise<{
         id: string;
-        action: string;
+        action: import(".prisma/client").$Enums.AuditAction;
         entity: string;
         entityId: string;
         details: string | null;
@@ -16,12 +16,12 @@ export declare class AuditService {
             user: {
                 email: string;
                 fullName: string;
-                role: string;
+                role: import(".prisma/client").$Enums.UserRole;
                 id: string;
             };
         } & {
             id: string;
-            action: string;
+            action: import(".prisma/client").$Enums.AuditAction;
             entity: string;
             entityId: string;
             details: string | null;
@@ -39,12 +39,12 @@ export declare class AuditService {
         user: {
             email: string;
             fullName: string;
-            role: string;
+            role: import(".prisma/client").$Enums.UserRole;
             id: string;
         };
     } & {
         id: string;
-        action: string;
+        action: import(".prisma/client").$Enums.AuditAction;
         entity: string;
         entityId: string;
         details: string | null;
@@ -54,7 +54,7 @@ export declare class AuditService {
     getAuditStats(userId: string, userRole: string): Promise<{
         totalLogs: number;
         actionStats: {
-            action: string;
+            action: import(".prisma/client").$Enums.AuditAction;
             count: number;
         }[];
         entityStats: {
@@ -69,7 +69,7 @@ export declare class AuditService {
             };
         } & {
             id: string;
-            action: string;
+            action: import(".prisma/client").$Enums.AuditAction;
             entity: string;
             entityId: string;
             details: string | null;

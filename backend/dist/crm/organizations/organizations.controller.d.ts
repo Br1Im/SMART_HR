@@ -8,16 +8,16 @@ export declare class OrganizationsController {
         _count: {
             contacts: number;
         };
-        contacts: {
-            email: string;
-            fullName: string;
-            id: string;
-        }[];
         owner: {
             email: string;
             fullName: string;
             id: string;
         };
+        contacts: {
+            email: string;
+            fullName: string;
+            id: string;
+        }[];
     } & {
         id: string;
         createdAt: Date;
@@ -56,6 +56,11 @@ export declare class OrganizationsController {
         };
     }>;
     findOne(id: string, req: any): Promise<{
+        owner: {
+            email: string;
+            fullName: string;
+            id: string;
+        };
         contacts: {
             email: string;
             fullName: string;
@@ -63,11 +68,6 @@ export declare class OrganizationsController {
             createdAt: Date;
             phone: string;
         }[];
-        owner: {
-            email: string;
-            fullName: string;
-            id: string;
-        };
     } & {
         id: string;
         createdAt: Date;

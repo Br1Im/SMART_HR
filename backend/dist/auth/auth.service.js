@@ -20,16 +20,22 @@ let AuthService = class AuthService {
         this.jwtService = jwtService;
     }
     async register(registerDto) {
-        const { email, password, fullName, role } = registerDto;
+        const { email, password, fullName, role, adminPassword } = registerDto;
         const existingUser = await this.prisma.user.findUnique({
             where: { email },
         });
         if (existingUser) {
             throw new common_1.ConflictException('Пользователь с таким email уже существует');
         }
-        const validRoles = ['ADMIN', 'MANAGER', 'CLIENT', 'CANDIDATE'];
+        const validRoles = ['ADMIN', 'CURATOR', 'CLIENT', 'CANDIDATE'];
         if (!validRoles.includes(role)) {
             throw new common_1.BadRequestException('Недопустимая роль');
+        }
+        if (role === 'ADMIN') {
+            const requiredAdminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+            if (!adminPassword || adminPassword !== requiredAdminPassword) {
+                throw new common_1.UnauthorizedException('Неверный пароль администратора');
+            }
         }
         const hashedPassword = await bcrypt.hash(password, 12);
         const user = await this.prisma.user.create({

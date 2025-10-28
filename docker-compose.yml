@@ -26,6 +26,7 @@ services:
       - NODE_ENV=production
       - DATABASE_URL=postgresql://postgres:postgres@database:5432/smartcourse
       - JWT_SECRET=your-super-secret-jwt-key-change-in-production
+      - JWT_EXPIRES_IN=7d
       - PORT=3001
     ports:
       - "3001:3001"

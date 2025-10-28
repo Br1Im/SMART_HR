@@ -14,7 +14,7 @@ export class AuthService {
   ) {}
 
   async register(registerDto: RegisterDto) {
-    const { email, password, fullName, role } = registerDto;
+    const { email, password, fullName, role, adminPassword } = registerDto;
 
     // Проверяем, существует ли пользователь
     const existingUser = await this.prisma.user.findUnique({
@@ -26,9 +26,17 @@ export class AuthService {
     }
 
     // Валидация роли
-    const validRoles = ['ADMIN', 'MANAGER', 'CLIENT', 'CANDIDATE'];
+    const validRoles = ['ADMIN', 'CURATOR', 'CLIENT', 'CANDIDATE'];
     if (!validRoles.includes(role)) {
       throw new BadRequestException('Недопустимая роль');
+    }
+
+    // Проверка пароля администратора
+    if (role === 'ADMIN') {
+      const requiredAdminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+      if (!adminPassword || adminPassword !== requiredAdminPassword) {
+        throw new UnauthorizedException('Неверный пароль администратора');
+      }
     }
 
     // Хешируем пароль
