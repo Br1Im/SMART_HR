@@ -31,12 +31,8 @@ services:
       - "3001:3001"
     depends_on:
       - database
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
     networks:
       - smartcourse-network
-    command: npm run start:dev
 
   # Frontend сервис
   frontend:
