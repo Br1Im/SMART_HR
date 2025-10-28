@@ -5,7 +5,6 @@ import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { BookOpen, Brain, BarChart3, Target, Globe, Award, ArrowRight, Sparkles, Users, Clock } from 'lucide-react';
 
-// Простой компонент для анимации счетчика
 const CountUp = ({ end, duration = 2000, suffix = '' }) => {
   const [count, setCount] = useState(0);
   
@@ -98,7 +97,7 @@ const LandingPage: React.FC = () => {
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           {/* Формулы равномерно распределены по блоку */}
           <motion.div 
-            className="absolute top-[10%] left-[15%] text-5xl text-blue-300/25 dark:text-blue-400/25 font-serif"
+            className="absolute text-5xl text-blue-300/25 dark:text-blue-400/25 font-serif" style={{ top: '10%', left: '15%' }}
             initial={{ opacity: 0, y: -20 }}
             animate={{ 
               opacity: 0.3,
@@ -118,7 +117,7 @@ const LandingPage: React.FC = () => {
           </motion.div>
           
           <motion.div 
-            className="absolute top-[20%] left-[75%] text-4xl text-indigo-300/25 dark:text-indigo-400/25 font-serif"
+            className="absolute text-4xl text-indigo-300/25 dark:text-indigo-400/25 font-serif" style={{ top: '20%', left: '75%' }}
             initial={{ opacity: 0, y: -20 }}
             animate={{ 
               opacity: 0.3,
@@ -138,7 +137,7 @@ const LandingPage: React.FC = () => {
           </motion.div>
           
           <motion.div 
-            className="absolute top-[35%] left-[85%] text-6xl text-violet-300/25 dark:text-violet-400/25 font-serif"
+            className="absolute text-6xl text-violet-300/25 dark:text-violet-400/25 font-serif" style={{ top: '35%', left: '85%' }}
             initial={{ opacity: 0, y: -20 }}
             animate={{ 
               opacity: 0.3,
@@ -158,7 +157,7 @@ const LandingPage: React.FC = () => {
           </motion.div>
           
           <motion.div 
-            className="absolute top-[80%] left-[50%] text-5xl text-amber-300/25 dark:text-amber-400/25 font-serif"
+            className="absolute text-5xl text-amber-300/25 dark:text-amber-400/25 font-serif" style={{ top: '80%', left: '50%' }}
             initial={{ opacity: 0, y: -20 }}
             animate={{ 
               opacity: 0.3,
@@ -178,7 +177,7 @@ const LandingPage: React.FC = () => {
           </motion.div>
           
           <motion.div 
-            className="absolute top-[75%] left-[15%] text-4xl text-cyan-300/25 dark:text-cyan-400/25 font-serif"
+            className="absolute text-4xl text-cyan-300/25 dark:text-cyan-400/25 font-serif" style={{ top: '75%', left: '15%' }}
             initial={{ opacity: 0, y: -20 }}
             animate={{ 
               opacity: 0.3,
@@ -198,7 +197,7 @@ const LandingPage: React.FC = () => {
           </motion.div>
           
           <motion.div 
-            className="absolute top-[15%] left-[25%] text-4xl text-emerald-300/25 dark:text-emerald-400/25 font-serif"
+            className="absolute text-4xl text-emerald-300/25 dark:text-emerald-400/25 font-serif" style={{ top: '15%', left: '25%' }}
             initial={{ opacity: 0, y: -20 }}
             animate={{ 
               opacity: 0.3,
@@ -218,7 +217,7 @@ const LandingPage: React.FC = () => {
           </motion.div>
           
           <motion.div 
-            className="absolute top-[30%] left-[65%] text-5xl text-rose-300/25 dark:text-rose-400/25 font-serif"
+            className="absolute text-5xl text-rose-300/25 dark:text-rose-400/25 font-serif" style={{ top: '30%', left: '65%' }}
             initial={{ opacity: 0, y: -20 }}
             animate={{ 
               opacity: 0.3,
@@ -238,7 +237,7 @@ const LandingPage: React.FC = () => {
           </motion.div>
           
           <motion.div 
-            className="absolute top-[60%] left-[80%] text-4xl text-purple-300/25 dark:text-purple-400/25 font-serif"
+            className="absolute text-4xl text-purple-300/25 dark:text-purple-400/25 font-serif" style={{ top: '60%', left: '80%' }}
             initial={{ opacity: 0, y: -20 }}
             animate={{ 
               opacity: 0.3,
@@ -258,7 +257,7 @@ const LandingPage: React.FC = () => {
           </motion.div>
           
           <motion.div 
-            className="absolute top-[85%] left-[70%] text-6xl text-rose-300/25 dark:text-rose-400/25 font-serif"
+            className="absolute text-4xl text-rose-300/25 dark:text-rose-400/25 font-serif" style={{ top: '85%', left: '70%' }}
             initial={{ opacity: 0, y: -20 }}
             animate={{ 
               opacity: 0.3,
@@ -278,7 +277,7 @@ const LandingPage: React.FC = () => {
           </motion.div>
           
           <motion.div 
-            className="absolute top-[90%] left-[30%] text-4xl text-teal-300/25 dark:text-teal-400/25 font-serif"
+            className="absolute text-4xl text-teal-300/25 dark:text-teal-400/25 font-serif" style={{ top: '90%', left: '30%' }}
             initial={{ opacity: 0, y: -20 }}
             animate={{ 
               opacity: 0.3,
@@ -298,12 +297,12 @@ const LandingPage: React.FC = () => {
           </motion.div>
           
           <motion.div 
-            className="absolute top-[45%] left-[10%] text-5xl text-amber-300/25 dark:text-amber-400/25 font-serif"
+            className="absolute text-5xl text-amber-300/25 dark:text-amber-400/25 font-serif" style={{ top: '1px', left: '10%' }}
             initial={{ opacity: 0, y: -20 }}
             animate={{ 
               opacity: 0.3,
               y: 0,
-              x: [0, 10, 0], 
+              x: [0, 10, 0],
               rotate: [0, 3, 0],
               scale: [1, 1.03, 1]
             }}
@@ -318,12 +317,12 @@ const LandingPage: React.FC = () => {
           </motion.div>
           
           <motion.div 
-            className="absolute top-[25%] left-[40%] text-4xl text-blue-300/25 dark:text-blue-400/25 font-serif"
+            className="absolute text-4xl text-blue-300/25 dark:text-blue-400/25 font-serif" style={{ top: '25%', left: '40%' }}
             initial={{ opacity: 0, y: -20 }}
             animate={{ 
               opacity: 0.3,
               y: 0,
-              x: [0, -12, 0], 
+              x: [0, -12, 0],
               rotate: [0, -4, 0],
               scale: [1, 1.04, 1]
             }}
@@ -338,12 +337,12 @@ const LandingPage: React.FC = () => {
           </motion.div>
           
           <motion.div 
-            className="absolute top-[5%] left-[55%] text-6xl text-indigo-300/25 dark:text-indigo-400/25 font-serif"
+            className="absolute text-6xl text-indigo-300/25 dark:text-indigo-400/25 font-serif" style={{ top: '5%', left: '55%' }}
             initial={{ opacity: 0, y: -20 }}
             animate={{ 
               opacity: 0.3,
               y: 0,
-              x: [0, 15, 0], 
+              x: [0, 15, 0],
               rotate: [0, 5, 0],
               scale: [1, 1.05, 1]
             }}
@@ -358,7 +357,7 @@ const LandingPage: React.FC = () => {
           </motion.div>
           
           <motion.div 
-            className="absolute top-[calc(50%-300px)] left-[calc(50%-100px)] text-5xl text-violet-300/25 dark:text-violet-400/25 font-serif"
+            className="absolute text-5xl text-violet-300/25 dark:text-violet-400/25 font-serif" style={{ top: 'calc(50% - 300px)', left: 'calc(50% - 100px)' }}
             animate={{ 
               y: [0, -10, 0], 
               rotate: [0, -3, 0],
@@ -370,7 +369,7 @@ const LandingPage: React.FC = () => {
           </motion.div>
           
           <motion.div 
-            className="absolute top-[calc(50%-150px)] left-[calc(50%+250px)] text-4xl text-amber-300/25 dark:text-amber-400/25 font-serif"
+            className="absolute text-4xl text-amber-300/25 dark:text-amber-400/25 font-serif" style={{ top: 'calc(50% - 150px)', left: 'calc(50% + 250px)' }}
             animate={{ 
               y: [0, -12, 0], 
               rotate: [0, 4, 0],
@@ -382,7 +381,7 @@ const LandingPage: React.FC = () => {
           </motion.div>
           
           <motion.div 
-            className="absolute top-[calc(50%+250px)] left-[calc(50%-200px)] text-4xl text-cyan-300/25 dark:text-cyan-400/25 font-serif"
+            className="absolute text-4xl text-cyan-300/25 dark:text-cyan-400/25 font-serif" style={{ top: 'calc(50% + 250px)', left: 'calc(50% - 200px)' }}
             animate={{ 
               y: [0, -15, 0], 
               rotate: [0, 5, 0],
@@ -394,7 +393,7 @@ const LandingPage: React.FC = () => {
           </motion.div>
         </div>
         <motion.div 
-            className="absolute top-[12%] left-[85%] text-xl text-pink-300/30 dark:text-pink-400/25 font-serif"
+            className="absolute text-xl text-pink-300/30 dark:text-pink-400/25 font-serif" style={{ top: '12%', left: '85%' }}
             animate={{ 
               y: [0, -20, 0],
               rotate: [0, -8, 0]
@@ -404,7 +403,7 @@ const LandingPage: React.FC = () => {
             ∞
           </motion.div>
           <motion.div 
-            className="absolute top-[82%] left-[12%] text-xl text-lime-300/30 dark:text-lime-400/25 font-serif"
+            className="absolute text-xl text-lime-300/30 dark:text-lime-400/25 font-serif" style={{ top: '82%', left: '12%' }}
             animate={{ 
               y: [0, -6, 0],
               rotate: [0, 10, 0]
@@ -414,7 +413,7 @@ const LandingPage: React.FC = () => {
             π
           </motion.div>
           <motion.div 
-            className="absolute top-[88%] right-[25%] text-xl text-orange-300/30 dark:text-orange-400/25 font-serif"
+            className="absolute text-xl text-orange-300/30 dark:text-orange-400/25 font-serif" style={{ top: '88%', right: '25%' }}
             animate={{ 
               y: [0, -15, 0],
               rotate: [0, -12, 0]
