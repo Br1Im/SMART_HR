@@ -24,7 +24,7 @@ export class OrganizationsController {
   constructor(private readonly organizationsService: OrganizationsService) {}
 
   @Post()
-  @Roles('ADMIN', 'CURATOR')
+  @Roles('ADMIN', 'MANAGER', 'CANDIDATE')
   @Resource('organizations')
   @Action('create')
   create(@Body() createOrganizationDto: CreateOrganizationDto, @Request() req) {
@@ -32,7 +32,7 @@ export class OrganizationsController {
   }
 
   @Get()
-  @Roles('ADMIN', 'CURATOR', 'CLIENT', 'CANDIDATE')
+  @Roles('ADMIN', 'MANAGER', 'CANDIDATE')
   @Resource('organizations')
   @Action('read')
   findAll(
@@ -54,7 +54,7 @@ export class OrganizationsController {
   }
 
   @Get(':id')
-  @Roles('ADMIN', 'CURATOR', 'CLIENT', 'CANDIDATE')
+  @Roles('ADMIN', 'MANAGER', 'CANDIDATE')
   @Resource('organizations')
   @Action('read')
   findOne(@Param('id') id: string, @Request() req) {
@@ -62,7 +62,7 @@ export class OrganizationsController {
   }
 
   @Patch(':id')
-  @Roles('ADMIN', 'CURATOR')
+  @Roles('ADMIN', 'MANAGER', 'CANDIDATE')
   @Resource('organizations')
   @Action('update')
   update(
@@ -79,7 +79,7 @@ export class OrganizationsController {
   }
 
   @Delete(':id')
-  @Roles('ADMIN', 'CURATOR')
+  @Roles('ADMIN', 'MANAGER', 'CANDIDATE')
   @Resource('organizations')
   @Action('delete')
   remove(@Param('id') id: string, @Request() req) {

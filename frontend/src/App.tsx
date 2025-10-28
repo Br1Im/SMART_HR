@@ -9,10 +9,6 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import './styles/AuthPage.css';
-import ConsentsPage from './components/settings/ConsentsPage';
-import { OrganizationsList } from './components/crm/OrganizationsList';
-import { OrganizationDetails } from './components/crm/OrganizationDetails';
-import { ContactsList } from './components/crm/ContactsList';
 
 // Компонент-обертка для редактора курса
 function EditorWrapper({ darkMode, toggleTheme }: { darkMode: boolean, toggleTheme: () => void }) {
@@ -272,12 +268,38 @@ export default function App() {
   });
 
   const toggleTheme = () => {
+    // Создаем эффект плавного перехода
+    const overlay = document.createElement('div');
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100vw';
+    overlay.style.height = '100vh';
+    overlay.style.backgroundColor = darkMode ? 'rgba(249, 250, 251, 0)' : 'rgba(17, 24, 39, 0)';
+    overlay.style.zIndex = '9999';
+    overlay.style.pointerEvents = 'none';
+    overlay.style.transition = 'background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+    document.body.appendChild(overlay);
+
+    // Активируем анимацию
+    setTimeout(() => {
+      overlay.style.backgroundColor = darkMode ? 'rgba(249, 250, 251, 0.1)' : 'rgba(17, 24, 39, 0.1)';
+    }, 10);
+
     setDarkMode(prev => {
       const newDarkMode = !prev;
       // Сохраняем тему в localStorage
       localStorage.setItem('darkMode', String(newDarkMode));
       return newDarkMode;
     });
+
+    // Удаляем overlay после завершения анимации
+    setTimeout(() => {
+      overlay.style.backgroundColor = 'transparent';
+      setTimeout(() => {
+        document.body.removeChild(overlay);
+      }, 400);
+    }, 200);
   };
 
   useEffect(() => {
@@ -337,31 +359,6 @@ export default function App() {
           <Route path="/results" element={
             <ProtectedRoute allowedRoles={['CLIENT', 'CANDIDATE']}>
               <QuizResults onBack={() => {}} />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/settings/consents" element={
-            <ProtectedRoute>
-              <ConsentsPage />
-            </ProtectedRoute>
-          } />
-          
-          {/* CRM маршруты */}
-          <Route path="/crm/orgs" element={
-            <ProtectedRoute allowedRoles={['ADMIN', 'MANAGER', 'CANDIDATE']}>
-              <OrganizationsList />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/crm/orgs/:id" element={
-            <ProtectedRoute allowedRoles={['ADMIN', 'MANAGER', 'CANDIDATE']}>
-              <OrganizationDetails />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/crm/contacts" element={
-            <ProtectedRoute allowedRoles={['ADMIN', 'MANAGER', 'CLIENT']}>
-              <ContactsList />
             </ProtectedRoute>
           } />
         </Routes>

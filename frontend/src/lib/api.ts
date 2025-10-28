@@ -165,77 +165,6 @@ class ApiClient {
     });
   }
 
-  // CRM - Organizations
-  async getOrganizations(params?: { page?: number; limit?: number; search?: string }): Promise<any> {
-    const searchParams = new URLSearchParams();
-    if (params?.page) searchParams.append('page', params.page.toString());
-    if (params?.limit) searchParams.append('limit', params.limit.toString());
-    if (params?.search) searchParams.append('search', params.search);
-    
-    const query = searchParams.toString();
-    return this.request(`/crm/organizations${query ? `?${query}` : ''}`);
-  }
-
-  async getOrganization(id: string): Promise<any> {
-    return this.request(`/crm/organizations/${id}`);
-  }
-
-  async createOrganization(data: any): Promise<any> {
-    return this.request('/crm/organizations', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
-  }
-
-  async updateOrganization(id: string, data: any): Promise<any> {
-    return this.request(`/crm/organizations/${id}`, {
-      method: 'PATCH',
-      body: JSON.stringify(data),
-    });
-  }
-
-  async deleteOrganization(id: string): Promise<any> {
-    return this.request(`/crm/organizations/${id}`, {
-      method: 'DELETE',
-    });
-  }
-
-  // CRM - Contacts
-  async getContacts(params?: { page?: number; limit?: number; search?: string; orgId?: string }): Promise<any> {
-    const searchParams = new URLSearchParams();
-    if (params?.page) searchParams.append('page', params.page.toString());
-    if (params?.limit) searchParams.append('limit', params.limit.toString());
-    if (params?.search) searchParams.append('search', params.search);
-    if (params?.orgId) searchParams.append('orgId', params.orgId);
-    
-    const query = searchParams.toString();
-    return this.request(`/crm/contacts${query ? `?${query}` : ''}`);
-  }
-
-  async getContact(id: string): Promise<any> {
-    return this.request(`/crm/contacts/${id}`);
-  }
-
-  async createContact(data: any): Promise<any> {
-    return this.request('/crm/contacts', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
-  }
-
-  async updateContact(id: string, data: any): Promise<any> {
-    return this.request(`/crm/contacts/${id}`, {
-      method: 'PATCH',
-      body: JSON.stringify(data),
-    });
-  }
-
-  async deleteContact(id: string): Promise<any> {
-    return this.request(`/crm/contacts/${id}`, {
-      method: 'DELETE',
-    });
-  }
-
   // Методы для работы с токенами
   setToken(token: string): void {
     localStorage.setItem('authToken', token);
@@ -255,5 +184,4 @@ class ApiClient {
 }
 
 export const apiClient = new ApiClient();
-export const api = apiClient; // Alias for compatibility
 export default apiClient;

@@ -18,8 +18,6 @@ export class RbacService {
       { resource: 'students', actions: ['read'] },
       { resource: 'progress', actions: ['read'] },
       { resource: 'audit', actions: ['read'] },
-      { resource: 'organizations', actions: ['read', 'create', 'update', 'delete'] },
-      { resource: 'contacts', actions: ['read', 'create', 'update', 'delete'] },
     ],
     'CLIENT': [
       { resource: 'courses', actions: ['read'] },
@@ -27,8 +25,6 @@ export class RbacService {
       { resource: 'quizzes', actions: ['read'] },
       { resource: 'progress', actions: ['read', 'update'] }, // Свой прогресс
       { resource: 'profile', actions: ['read', 'update'] },
-      { resource: 'organizations', actions: ['read'] }, // Только просмотр организаций
-      { resource: 'contacts', actions: ['read'] }, // Только просмотр контактов
     ],
     'CANDIDATE': [
       { resource: 'courses', actions: ['read'] },
@@ -37,8 +33,6 @@ export class RbacService {
       { resource: 'progress', actions: ['read', 'update'] }, // Свой прогресс
       { resource: 'profile', actions: ['read', 'update'] },
       { resource: 'applications', actions: ['read', 'create'] },
-      { resource: 'organizations', actions: ['read'] }, // Только просмотр организаций
-      { resource: 'contacts', actions: ['read'] }, // Только просмотр контактов
     ],
   };
 

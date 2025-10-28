@@ -182,18 +182,6 @@
     padding: 0;
   }
 
-  html {
-    overflow-y: auto;
-  }
-
-  body {
-    overflow-y: auto;
-  }
-
-  #root {
-    overflow-y: visible;
-  }
-
   * {
     @apply border-border outline-ring/50;
     transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
@@ -234,6 +222,7 @@
     background-color: var(--background);
     background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.03) 1px, transparent 0);
     background-size: 20px 20px;
+    min-height: 100vh;
   }
 
   .dark .bg-card {
