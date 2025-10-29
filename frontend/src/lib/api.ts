@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:3001/api';
+const API_BASE_URL = '/api';
 
 export interface LoginRequest {
   email: string;
@@ -10,7 +10,6 @@ export interface RegisterRequest {
   password: string;
   fullName: string;
   role: string;
-  adminPassword?: string;
 }
 
 export interface AuthResponse {
@@ -58,18 +57,31 @@ class ApiClient {
     }
 
     try {
+      console.log('Making API request:', { url, method: config.method, headers: config.headers });
+      
       const response = await fetch(url, config);
+      
+      console.log('API response received:', { 
+        url, 
+        status: response.status, 
+        statusText: response.statusText,
+        ok: response.ok 
+      });
       
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ 
           message: 'Произошла ошибка сервера',
           statusCode: response.status 
         }));
+        console.error('API error response:', errorData);
         throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
       }
 
-      return await response.json();
+      const responseData = await response.json();
+      console.log('API response data:', responseData);
+      return responseData;
     } catch (error) {
+      console.error('API request failed:', error);
       if (error instanceof Error) {
         throw error;
       }

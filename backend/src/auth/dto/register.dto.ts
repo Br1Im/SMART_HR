@@ -14,11 +14,7 @@ export class RegisterDto {
   @IsNotEmpty({ message: 'Полное имя обязательно' })
   fullName: string;
 
-  @IsIn(['ADMIN', 'CURATOR', 'CLIENT', 'CANDIDATE'], { message: 'Недопустимая роль' })
+  @IsIn(['CURATOR', 'CLIENT', 'CANDIDATE'], { message: 'Недопустимая роль' })
   @IsNotEmpty({ message: 'Роль обязательна' })
   role: string;
-
-  @IsOptional()
-  @IsString({ message: 'Пароль администратора должен быть строкой' })
-  adminPassword?: string;
 }

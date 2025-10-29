@@ -14,7 +14,7 @@ export class AuthService {
   ) {}
 
   async register(registerDto: RegisterDto) {
-    const { email, password, fullName, role, adminPassword } = registerDto;
+    const { email, password, fullName, role } = registerDto;
 
     // Проверяем, существует ли пользователь
     const existingUser = await this.prisma.user.findUnique({
@@ -25,18 +25,14 @@ export class AuthService {
       throw new ConflictException('Пользователь с таким email уже существует');
     }
 
-    // Валидация роли
-    const validRoles = ['ADMIN', 'CURATOR', 'CLIENT', 'CANDIDATE'];
-    if (!validRoles.includes(role)) {
-      throw new BadRequestException('Недопустимая роль');
+    // Валидация роли - админов нельзя регистрировать через API
+    if (role === 'ADMIN') {
+      throw new BadRequestException('Регистрация администраторов запрещена. Обратитесь к системному администратору.');
     }
 
-    // Проверка пароля администратора
-    if (role === 'ADMIN') {
-      const requiredAdminPassword = process.env.ADMIN_PASSWORD || 'admin123';
-      if (!adminPassword || adminPassword !== requiredAdminPassword) {
-        throw new UnauthorizedException('Неверный пароль администратора');
-      }
+    const validRoles = ['CURATOR', 'CLIENT', 'CANDIDATE'];
+    if (!validRoles.includes(role)) {
+      throw new BadRequestException('Недопустимая роль');
     }
 
     // Хешируем пароль

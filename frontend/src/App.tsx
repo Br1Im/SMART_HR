@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Route, Routes, Link, useNavigate, useParams } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import LandingPage from './components/LandingPage';
 import { CoursesList } from './components/CoursesList';
 import { CourseEditor } from './components/CourseEditor';
@@ -6,9 +7,24 @@ import { CreateCourse } from './components/CreateCourse';
 import { StudentView } from './components/StudentView';
 import { QuizResults } from './components/QuizResults';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { ProtectedLayout } from './components/ProtectedLayout';
+import { RegisterPage } from './components/RegisterPage';
+import { OrganizationsList } from './components/crm/OrganizationsList';
+import { OrganizationDetails } from './components/crm/OrganizationDetails';
+import { ContactsList } from './components/crm/ContactsList';
 import { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import './styles/AuthPage.css';
+
+// Создаем QueryClient
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 // Компонент-обертка для редактора курса
 function EditorWrapper({ darkMode, toggleTheme }: { darkMode: boolean, toggleTheme: () => void }) {
@@ -35,6 +51,7 @@ function AuthPage() {
   const [fullName, setFullName] = useState('');
   const [role, setRole] = useState('CLIENT');
   const [adminPassword, setAdminPassword] = useState('');
+  
   const navigate = useNavigate();
   const { login, register, error, isLoading, clearError } = useAuth();
 
@@ -67,7 +84,7 @@ function AuthPage() {
       if (isLogin) {
         await login(email, password);
       } else {
-        await register(email, password, fullName, role, adminPassword);
+        await register(email, password, fullName, role);
       }
       // Переход на страницу курсов после успешного входа/регистрации
       navigate('/courses');
@@ -139,7 +156,6 @@ function AuthPage() {
                 <option value="CLIENT">Клиент</option>
                 <option value="CANDIDATE">Кандидат</option>
                 <option value="CURATOR">Куратор</option>
-                <option value="ADMIN">Администратор</option>
               </select>
             </div>
           )}
@@ -150,14 +166,15 @@ function AuthPage() {
               <input
                 type="password"
                 id="adminPassword"
+                placeholder="Введите специальный пароль администратора"
                 className="auth-input"
                 value={adminPassword}
                 onChange={(e) => setAdminPassword(e.target.value)}
-                placeholder="Введите пароль администратора"
                 required
               />
             </div>
           )}
+
           
           <div className="form-group">
             <label htmlFor="email">Email</label>
@@ -318,51 +335,85 @@ export default function App() {
   }, [darkMode]);
 
   return (
-    <AuthProvider>
-      <Router>
-        <Routes>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <Router>
+          <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/auth" element={<AuthPage />} />
+          <Route path="/register" element={<RegisterPage />} />
           
-          {/* Защищённые маршруты для всех авторизованных пользователей */}
-          <Route path="/courses" element={
-            <ProtectedRoute>
+          {/* Dashboard route - redirects to courses */}
+          <Route path="/dashboard" element={
+            <ProtectedLayout>
               <CoursesList 
                 onCourseSelect={(courseId) => window.location.href = `/editor/${courseId}`} 
                 onCreateCourse={() => window.location.href = '/courses/create'} 
                 darkMode={darkMode} 
                 toggleTheme={toggleTheme} 
               />
-            </ProtectedRoute>
+            </ProtectedLayout>
+          } />
+          
+          {/* Защищённые маршруты для всех авторизованных пользователей */}
+          <Route path="/courses" element={
+            <ProtectedLayout>
+              <CoursesList 
+                onCourseSelect={(courseId) => window.location.href = `/editor/${courseId}`} 
+                onCreateCourse={() => window.location.href = '/courses/create'} 
+                darkMode={darkMode} 
+                toggleTheme={toggleTheme} 
+              />
+            </ProtectedLayout>
           } />
           
           {/* Маршруты только для кураторов и админов */}
           <Route path="/courses/create" element={
-            <ProtectedRoute allowedRoles={['ADMIN', 'CURATOR']}>
+            <ProtectedLayout allowedRoles={['ADMIN', 'CURATOR']}>
               <CreateCourse />
-            </ProtectedRoute>
+            </ProtectedLayout>
           } />
           
           <Route path="/editor/:courseId" element={
-            <ProtectedRoute allowedRoles={['ADMIN', 'CURATOR']}>
+            <ProtectedLayout allowedRoles={['ADMIN', 'CURATOR']}>
               <EditorWrapper darkMode={darkMode} toggleTheme={toggleTheme} />
-            </ProtectedRoute>
+            </ProtectedLayout>
           } />
           
           {/* Маршруты для студентов (клиенты и кандидаты) */}
           <Route path="/student/:courseId" element={
-            <ProtectedRoute allowedRoles={['CLIENT', 'CANDIDATE']}>
+            <ProtectedLayout allowedRoles={['CLIENT', 'CANDIDATE']}>
               <StudentView courseId='' onBack={() => {}} />
-            </ProtectedRoute>
+            </ProtectedLayout>
           } />
           
           <Route path="/results" element={
-            <ProtectedRoute allowedRoles={['CLIENT', 'CANDIDATE']}>
+            <ProtectedLayout allowedRoles={['CLIENT', 'CANDIDATE']}>
               <QuizResults onBack={() => {}} />
-            </ProtectedRoute>
+            </ProtectedLayout>
           } />
-        </Routes>
-      </Router>
-    </AuthProvider>
+          
+          {/* CRM маршруты для админов и кураторов */}
+          <Route path="/crm/orgs" element={
+            <ProtectedLayout allowedRoles={['ADMIN', 'CURATOR']}>
+              <OrganizationsList />
+            </ProtectedLayout>
+          } />
+          
+          <Route path="/crm/orgs/:id" element={
+            <ProtectedLayout allowedRoles={['ADMIN', 'CURATOR']}>
+              <OrganizationDetails />
+            </ProtectedLayout>
+          } />
+          
+          <Route path="/crm/contacts" element={
+            <ProtectedLayout allowedRoles={['ADMIN', 'CURATOR']}>
+              <ContactsList />
+            </ProtectedLayout>
+          } />
+          </Routes>
+        </Router>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }

@@ -14,7 +14,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, fullName: string, role: string, adminPassword?: string) => Promise<void>;
+  register: (email: string, password: string, fullName: string, role: string) => Promise<void>;
   logout: () => void;
   error: string | null;
   clearError: () => void;
@@ -65,15 +65,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setIsLoading(true);
       setError(null);
       
+      console.log('Attempting login with:', { email, password: '***' });
+      
       const response: AuthResponse = await apiClient.login({ email, password });
+      
+      console.log('Login response received:', { 
+        user: response.user, 
+        hasToken: !!response.token,
+        message: response.message 
+      });
       
       // Сохраняем токен
       apiClient.setToken(response.token);
       
       // Устанавливаем пользователя
       setUser(response.user);
+      
+      console.log('Login successful, user set');
     } catch (error) {
+      console.error('Login error details:', error);
       const errorMessage = error instanceof Error ? error.message : 'Произошла ошибка при входе';
+      console.error('Setting error message:', errorMessage);
       setError(errorMessage);
       throw error;
     } finally {
@@ -81,7 +93,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const register = async (email: string, password: string, fullName: string, role: string = 'CANDIDATE', adminPassword?: string) => {
+  const register = async (email: string, password: string, fullName: string, role: string = 'CANDIDATE') => {
     try {
       setIsLoading(true);
       setError(null);
@@ -90,8 +102,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         email, 
         password, 
         fullName, 
-        role,
-        adminPassword 
+        role
       });
       
       // Сохраняем токен
