@@ -15,6 +15,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RbacGuard } from '../auth/guards/rbac.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Resource, Action } from '../auth/decorators/resource.decorator';
+import { ConsentType } from '@prisma/client';
 
 class GiveConsentDto {
   consentType: string;
@@ -41,7 +42,7 @@ export class ConsentController {
   ) {
     return this.consentService.giveConsent(
       req.user.id,
-      giveConsentDto.consentType,
+      giveConsentDto.consentType as ConsentType,
       ip,
       userAgent,
     );
@@ -91,7 +92,7 @@ export class ConsentController {
       req.user.role,
       pageNum,
       limitNum,
-      consentType,
+      consentType as ConsentType,
     );
   }
 
@@ -111,6 +112,6 @@ export class ConsentController {
     @Param('consentType') consentType: string,
     @Request() req,
   ) {
-    return this.consentService.checkUserConsent(req.user.id, consentType);
+    return this.consentService.checkUserConsent(req.user.id, consentType as ConsentType);
   }
 }

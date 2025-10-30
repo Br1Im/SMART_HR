@@ -30,6 +30,14 @@ export function RegisterPage() {
     }
   };
 
+  const fillAdminData = () => {
+    setFullName('Администратор Системы');
+    setEmail('admin@smartcourse.com');
+    setPassword('Admin123!');
+    setConfirmPassword('Admin123!');
+    setRole('ADMIN');
+  };
+
   return (
     <div className="auth-page">
       <div className="auth-container">
@@ -118,10 +126,24 @@ export function RegisterPage() {
               <option value="CLIENT">Клиент</option>
               <option value="CANDIDATE">Кандидат</option>
               <option value="CURATOR">Куратор</option>
+              <option value="ADMIN">Администратор</option>
             </select>
           </div>
 
 
+          
+          <button 
+            type="button"
+            onClick={fillAdminData}
+            className="auth-button" 
+            style={{ 
+              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+              marginBottom: '10px',
+              boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)'
+            }}
+          >
+            🔧 Заполнить данные админа
+          </button>
           
           <button type="submit" className="auth-button" disabled={isLoading}>
             {isLoading ? 'Регистрация...' : 'Зарегистрироваться'}

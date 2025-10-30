@@ -2,11 +2,18 @@
 .auth-page {
   min-height: 100vh;
   display: flex;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 25%, #f3e8ff 50%, #fdf2f8 75%, #fef3c7 100%);
   position: relative;
   overflow: hidden;
   animation: gradientAnimation 8s ease infinite;
   background-size: 200% 200%;
+}
+
+/* Dark mode support */
+.dark .auth-page {
+  background: linear-gradient(135deg, #1f2937 0%, #1e3a8a 25%, #581c87 50%, #7c2d12 75%, #92400e 100%);
 }
 
 @keyframes gradientAnimation {
@@ -43,14 +50,12 @@
 }
 
 .auth-container {
-  flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   padding: 40px;
   max-width: 500px;
-  margin: 0 auto;
   position: relative;
   z-index: 2;
   animation: slideInFromLeft 0.8s ease-out;
@@ -70,8 +75,12 @@
 .auth-header {
   text-align: center;
   margin-bottom: 40px;
-  color: white;
+  color: #1f2937;
   animation: fadeInDown 0.8s ease-out;
+}
+
+.dark .auth-header {
+  color: white;
 }
 
 @keyframes fadeInDown {
@@ -85,12 +94,42 @@
   }
 }
 
+.auth-title-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.auth-sparkles {
+  width: clamp(2rem, 4vw, 2.5rem);
+  height: clamp(2rem, 4vw, 2.5rem);
+  color: #3b82f6;
+  filter: drop-shadow(0 2px 10px rgba(59, 130, 246, 0.3));
+}
+
+.dark .auth-sparkles {
+  color: #60a5fa;
+}
+
 .auth-title {
   font-size: clamp(2.5rem, 5vw, 3.5rem);
   font-weight: 700;
-  margin-bottom: 10px;
   font-family: var(--font-family-heading);
-  text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #6366f1 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: none;
+  margin: 0;
+}
+
+.dark .auth-title {
+  background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 50%, #818cf8 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .auth-subtitle {
@@ -119,13 +158,23 @@
 
 .auth-form {
   width: 100%;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(20px);
   padding: 40px;
-  border-radius: 20px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 24px;
+  box-shadow: 
+    0 25px 50px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   animation: fadeInUp 1s ease-out 0.3s both;
+}
+
+.dark .auth-form {
+  background: rgba(17, 24, 39, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    0 25px 50px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
 }
 
 @keyframes fadeInUp {
@@ -192,12 +241,14 @@ select.auth-input {
 .auth-button {
   width: 100%;
   padding: 16px;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #6366f1 100%);
   color: white;
   border: none;
   border-radius: 12px;
   font-size: 1.1rem;
   font-weight: 600;
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+  transition: all 0.3s ease;
   cursor: pointer;
   transition: all 0.3s ease;
   margin-top: 10px;
@@ -209,19 +260,20 @@ select.auth-input {
 
 @keyframes pulse {
   0% {
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
   }
   50% {
-    box-shadow: 0 4px 25px rgba(102, 126, 234, 0.6);
+    box-shadow: 0 8px 35px rgba(59, 130, 246, 0.5);
   }
   100% {
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
   }
 }
 
 .auth-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 35px rgba(59, 130, 246, 0.4);
+  background: linear-gradient(135deg, #2563eb 0%, #7c3aed 50%, #4f46e5 100%);
   animation: none;
 }
 
@@ -298,17 +350,7 @@ select.auth-input {
   transform: translateX(3px);
 }
 
-/* Иллюстрация с формулами */
-.auth-illustration {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 40px;
-  position: relative;
-  z-index: 2;
-  animation: slideInFromRight 1s ease-out 0.5s both;
-}
+/* Удалены старые стили auth-illustration - теперь используем анимированные формулы по фону */
 
 /* Добавим светящиеся частицы */
 .auth-page::after {
@@ -351,60 +393,10 @@ select.auth-input {
   }
 }
 
-.illustration-content {
-  text-align: center;
-  color: rgba(255, 255, 255, 0.2);
-  font-family: 'Times New Roman', serif;
-}
-
-.math-formula-large {
-  font-size: clamp(1.5rem, 3vw, 2.5rem);
-  margin: 30px 0;
-  font-weight: 300;
-  letter-spacing: 2px;
-  animation: float 6s ease-in-out infinite, glow 3s ease-in-out infinite alternate;
-}
-
-@keyframes glow {
-  from {
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
-  }
-  to {
-    text-shadow: 0 0 20px rgba(255, 255, 255, 0.4), 0 0 30px rgba(255, 255, 255, 0.2);
-  }
-}
-
-.math-formula-large:nth-child(1) {
-  animation-delay: 0s;
-}
-
-.math-formula-large:nth-child(2) {
-  animation-delay: 2s;
-}
-
-.math-formula-large:nth-child(3) {
-  animation-delay: 4s;
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
+/* Удалены стили для старых статичных формул - используем анимированные формулы по фону */
 
 /* Адаптивность */
 @media (max-width: 768px) {
-  .auth-page {
-    flex-direction: column;
-  }
-  
-  .auth-illustration {
-    display: none;
-  }
-  
   .auth-container {
     padding: 20px;
   }

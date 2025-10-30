@@ -37,25 +37,34 @@ const CountUp = ({ end, duration = 2000, suffix = '' }) => {
   return <>{count}{suffix}</>;
 };
 
-const LandingPage: React.FC = () => {
-  const [darkMode, setDarkMode] = useState<boolean>(() => {
+interface LandingPageProps {
+  darkMode?: boolean;
+  toggleTheme?: () => void;
+}
+
+const LandingPage: React.FC<LandingPageProps> = ({ darkMode: propDarkMode, toggleTheme: propToggleTheme }) => {
+  const [localDarkMode, setLocalDarkMode] = useState<boolean>(() => {
     // Загружаем сохраненную тему из localStorage, по умолчанию тёмная тема
     const savedTheme = localStorage.getItem('darkMode');
     return savedTheme ? savedTheme === 'true' : true; // По умолчанию тёмная тема
   });
 
-  const toggleTheme = () => {
-    setDarkMode(prev => {
+  // Используем пропсы, если они переданы, иначе локальное состояние
+  const darkMode = propDarkMode !== undefined ? propDarkMode : localDarkMode;
+  const toggleTheme = propToggleTheme || (() => {
+    setLocalDarkMode(prev => {
       const newDarkMode = !prev;
       localStorage.setItem('darkMode', String(newDarkMode));
       return newDarkMode;
     });
-  };
+  });
 
   useEffect(() => {
     if (darkMode) {
+      document.documentElement.classList.add('dark');
       document.body.classList.add('dark');
     } else {
+      document.documentElement.classList.remove('dark');
       document.body.classList.remove('dark');
     }
   }, [darkMode]);
@@ -113,7 +122,7 @@ const LandingPage: React.FC = () => {
   };
 
   return (
-    <main className="min-h-screen bg-background">
+    <main className={`min-h-screen bg-background ${darkMode ? 'dark' : ''}`}>
       {/* Hero секция */}
       <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-indigo-50 to-purple-100 dark:from-gray-900 dark:via-blue-900/30 dark:to-purple-900/30 overflow-hidden shadow-lg" role="banner" aria-label="Главная секция SmartCourse">
         {/* Математические формулы - плавное распределение по блоку */}
@@ -613,17 +622,17 @@ const LandingPage: React.FC = () => {
                 <Card className="relative z-10 h-full border-2 border-transparent bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm hover:border-blue-200 dark:hover:border-blue-700 hover:bg-white dark:hover:bg-gray-800 transition-all duration-300 group-hover:shadow-xl group-hover:shadow-blue-500/20 dark:group-hover:shadow-blue-400/20">
                   <CardContent className="p-6 text-center">
                     <div className="relative mb-6">
-                      <div className={`w-16 h-16 mx-auto rounded-full bg-gradient-to-r ${step.color} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-                        <step.icon className="w-8 h-8 text-white" />
+                      <div className={`w-16 h-16 mx-auto rounded-full bg-white dark:bg-gray-800 border-2 border-primary/20 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                        <step.icon className="w-8 h-8 text-primary" />
                       </div>
                       <div className="absolute -top-2 -right-2 w-8 h-8 bg-white dark:bg-gray-800 rounded-full border-2 border-gray-200 dark:border-gray-600 flex items-center justify-center shadow-sm">
-                        <span className="text-sm font-bold text-blue-600 dark:text-blue-400">{step.step}</span>
+                        <span className="text-sm font-bold text-primary">{step.step}</span>
                       </div>
                     </div>
-                    <h3 className="text-xl font-bold mb-3 text-blue-600 dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors">
+                    <h3 className="text-xl font-bold mb-3 text-primary group-hover:text-primary/80 transition-colors">
                       {step.title}
                     </h3>
-                    <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                    <p className="text-muted-foreground leading-relaxed">
                       {step.description}
                     </p>
                   </CardContent>
@@ -708,14 +717,14 @@ const LandingPage: React.FC = () => {
                 <Card className="h-full border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
                   <CardContent className="p-6">
                     <div className="flex items-start gap-4 mb-4">
-                      <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
-                        <advantage.icon className="w-6 h-6 text-white" />
+                      <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-r from-primary to-primary/80 rounded-lg flex items-center justify-center">
+                        <advantage.icon className="w-6 h-6 text-background" />
                       </div>
                       <div className="flex-1">
-                        <h3 className="text-xl font-bold text-blue-600 mb-2">
+                        <h3 className="text-xl font-bold text-primary mb-2">
                           {advantage.title}
                         </h3>
-                        <div className="text-sm font-semibold text-green-600 bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded-full inline-block mb-3">
+                        <div className="text-sm font-semibold text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded-full inline-block mb-3">
                           {advantage.stats}
                         </div>
                       </div>
@@ -876,11 +885,11 @@ const LandingPage: React.FC = () => {
                     viewport={{ once: true }}
                     whileHover={{ scale: 1.02, y: -2 }}
                   >
-                    <div className="flex-shrink-0 w-12 h-12 lg:w-14 lg:h-14 bg-gradient-to-r from-slate-700 to-slate-800 dark:from-blue-500 dark:to-blue-600 rounded-lg lg:rounded-xl flex items-center justify-center shadow-lg shadow-slate-500/25 dark:shadow-blue-500/25 group-hover:shadow-slate-500/40 dark:group-hover:shadow-blue-500/40 transition-all duration-300">
-                      <feature.icon className="w-6 h-6 lg:w-7 lg:h-7 text-white" />
+                    <div className="flex-shrink-0 w-12 h-12 lg:w-14 lg:h-14 bg-gradient-to-r from-primary to-primary/80 rounded-lg lg:rounded-xl flex items-center justify-center shadow-lg shadow-primary/25 group-hover:shadow-primary/40 transition-all duration-300">
+                      <feature.icon className="w-6 h-6 lg:w-7 lg:h-7 text-background" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-bold text-base lg:text-lg text-blue-600 mb-1 lg:mb-2 group-hover:text-blue-700 transition-colors duration-300">
+                      <h3 className="font-bold text-base lg:text-lg text-primary mb-1 lg:mb-2 group-hover:text-primary/80 transition-colors duration-300">
                         {feature.title}
                       </h3>
                       <p className="text-sm lg:text-base text-muted-foreground leading-relaxed">
@@ -971,7 +980,7 @@ const LandingPage: React.FC = () => {
 
       {/* CTA секция */}
       <section 
-        className="py-32 px-4 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white" 
+        className="py-32 px-4 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 dark:from-blue-700 dark:via-purple-700 dark:to-indigo-700" 
         style={{ marginBottom: '80px' }}
       >
         <div className="max-w-4xl mx-auto text-center">
@@ -981,20 +990,20 @@ const LandingPage: React.FC = () => {
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6" style={{ color: '#ffffff !important' }}>
               Готовы создать свой первый курс?
             </h2>
-            <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
+            <p className="text-xl mb-8 max-w-2xl mx-auto" style={{ color: '#ffffff !important' }}>
               Присоединяйтесь к тысячам преподавателей, которые уже используют SmartCourse для создания качественных образовательных курсов
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button asChild size="lg" className="bg-white text-blue-600 hover:bg-blue-50 px-8 py-3 text-lg">
+              <Button asChild size="lg" className="bg-background text-primary hover:bg-background/90 px-8 py-3 text-lg shadow-lg">
                 <Link to="/auth">
                   Начать бесплатно
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Link>
               </Button>
-              <Button variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-blue-600 px-8 py-3 text-lg">
+              <Button variant="outline" size="lg" className="border-background text-background hover:bg-background hover:text-primary px-8 py-3 text-lg">
                 Посмотреть демо
               </Button>
             </div>
@@ -1003,39 +1012,39 @@ const LandingPage: React.FC = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-16 px-4">
+      <footer className="py-16 px-4 bg-background">
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-center mb-12">
             <div className="text-center">
-              <div className="flex items-center justify-center gap-2 mb-6">
-                <Sparkles className="w-8 h-8 text-blue-400" />
-                <span className="text-2xl font-bold">SmartCourse</span>
+                <div className="flex items-center justify-center gap-2 mb-6">
+                  <Sparkles className="w-8 h-8 text-primary" />
+                  <span className="text-2xl font-bold text-foreground">SmartCourse</span>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold mb-4 text-foreground">Компания</h3>
+                  <ul className="space-y-2">
+                    <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors">О нас</a></li>
+                    <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors">Блог</a></li>
+                    <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors">Карьера</a></li>
+                    <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors">Пресса</a></li>
+                  </ul>
+                </div>
               </div>
-              <div>
-                <h3 className="text-lg font-semibold mb-4">Компания</h3>
-                <ul className="space-y-2">
-                  <li><a href="#" className="text-gray-400 hover:text-white transition-colors">О нас</a></li>
-                  <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Блог</a></li>
-                  <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Карьера</a></li>
-                  <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Пресса</a></li>
-                </ul>
-              </div>
-            </div>
           </div>
           
-          <div className="border-t border-gray-800 pt-8">
+          <div className="border-t border-border pt-8">
             <div className="flex flex-col md:flex-row justify-between items-center">
-              <p className="text-gray-400 text-sm">
+              <p className="text-sm text-muted-foreground">
                 © 2025 SmartCourse. Все права защищены.
               </p>
               <div className="flex gap-6 mt-4 md:mt-0">
-                <a href="#" className="text-gray-400 hover:text-white text-sm transition-colors">
+                <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                   Политика конфиденциальности
                 </a>
-                <a href="#" className="text-gray-400 hover:text-white text-sm transition-colors">
+                <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                   Условия использования
                 </a>
-                <a href="#" className="text-gray-400 hover:text-white text-sm transition-colors">
+                <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                   Cookies
                 </a>
               </div>

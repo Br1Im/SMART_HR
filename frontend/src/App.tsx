@@ -14,6 +14,9 @@ import { OrganizationDetails } from './components/crm/OrganizationDetails';
 import { ContactsList } from './components/crm/ContactsList';
 import { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { Sparkles } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { ThemeToggle } from './components/layout/ThemeToggle';
 import './styles/AuthPage.css';
 
 // Создаем QueryClient
@@ -43,7 +46,12 @@ function EditorWrapper({ darkMode, toggleTheme }: { darkMode: boolean, toggleThe
   );
 }
 
-function AuthPage() {
+interface AuthPageProps {
+  darkMode: boolean;
+  toggleTheme: () => void;
+}
+
+function AuthPage({ darkMode, toggleTheme }: AuthPageProps) {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -106,9 +114,141 @@ function AuthPage() {
 
   return (
     <div className="auth-page">
+      {/* Анимированные математические формулы */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <motion.div 
+          className="absolute text-4xl text-blue-300/20 dark:text-blue-400/20 font-serif" 
+          style={{ top: '15%', left: '10%' }}
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ 
+            opacity: 0.3,
+            y: 0, 
+            x: [0, 10, 0],
+            rotate: [0, 5, 0],
+            scale: [1, 1.05, 1]
+          }}
+          transition={{ 
+            opacity: { duration: 1.5, delay: 1.0 },
+            x: { duration: 20, repeat: Infinity, ease: "easeInOut" },
+            rotate: { duration: 15, repeat: Infinity, ease: "easeInOut" },
+            scale: { duration: 12, repeat: Infinity, ease: "easeInOut" }
+          }}
+        >
+          ∫ f(x)dx
+        </motion.div>
+        
+        <motion.div 
+          className="absolute text-3xl text-purple-300/20 dark:text-purple-400/20 font-serif" 
+          style={{ top: '25%', right: '15%' }}
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ 
+            opacity: 0.3,
+            y: 0,
+            x: [0, -15, 0], 
+            rotate: [0, -3, 0],
+            scale: [1, 1.03, 1]
+          }}
+          transition={{ 
+            opacity: { duration: 1.5, delay: 1.2 },
+            x: { duration: 18, repeat: Infinity, ease: "easeInOut" },
+            rotate: { duration: 12, repeat: Infinity, ease: "easeInOut" },
+            scale: { duration: 10, repeat: Infinity, ease: "easeInOut" }
+          }}
+        >
+          e^(iπ) + 1 = 0
+        </motion.div>
+        
+        <motion.div 
+          className="absolute text-5xl text-indigo-300/20 dark:text-indigo-400/20 font-serif" 
+          style={{ top: '70%', left: '20%' }}
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ 
+            opacity: 0.3,
+            y: 0,
+            x: [0, 12, 0], 
+            rotate: [0, 4, 0],
+            scale: [1, 1.04, 1]
+          }}
+          transition={{ 
+            opacity: { duration: 1.5, delay: 1.4 },
+            x: { duration: 14, repeat: Infinity, ease: "easeInOut" },
+            rotate: { duration: 14, repeat: Infinity, ease: "easeInOut" },
+            scale: { duration: 14, repeat: Infinity, ease: "easeInOut" }
+          }}
+        >
+          π
+        </motion.div>
+        
+        <motion.div 
+          className="absolute text-3xl text-emerald-300/20 dark:text-emerald-400/20 font-serif" 
+          style={{ top: '80%', right: '25%' }}
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ 
+            opacity: 0.3,
+            y: 0,
+            x: [0, -8, 0], 
+            rotate: [0, 3, 0],
+            scale: [1, 1.03, 1]
+          }}
+          transition={{ 
+            opacity: { duration: 1.5, delay: 1.6 },
+            x: { duration: 16, repeat: Infinity, ease: "easeInOut" },
+            rotate: { duration: 16, repeat: Infinity, ease: "easeInOut" },
+            scale: { duration: 16, repeat: Infinity, ease: "easeInOut" }
+          }}
+        >
+          ∑ᵢ₌₁ⁿ xᵢ
+        </motion.div>
+        
+        <motion.div 
+          className="absolute text-4xl text-rose-300/20 dark:text-rose-400/20 font-serif" 
+          style={{ top: '45%', left: '5%' }}
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ 
+            opacity: 0.3,
+            y: 0,
+            x: [0, 15, 0], 
+            rotate: [0, -5, 0],
+            scale: [1, 1.05, 1]
+          }}
+          transition={{ 
+            opacity: { duration: 1.5, delay: 1.8 },
+            x: { duration: 17, repeat: Infinity, ease: "easeInOut" },
+            rotate: { duration: 17, repeat: Infinity, ease: "easeInOut" },
+            scale: { duration: 17, repeat: Infinity, ease: "easeInOut" }
+          }}
+        >
+          ∇ × F
+        </motion.div>
+        
+        <motion.div 
+          className="absolute text-3xl text-amber-300/20 dark:text-amber-400/20 font-serif" 
+          style={{ top: '60%', right: '10%' }}
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ 
+            opacity: 0.3,
+            y: 0,
+            x: [0, -10, 0], 
+            rotate: [0, 3, 0],
+            scale: [1, 1.03, 1]
+          }}
+          transition={{ 
+            opacity: { duration: 1.5, delay: 2.0 },
+            x: { duration: 13, repeat: Infinity, ease: "easeInOut" },
+            rotate: { duration: 13, repeat: Infinity, ease: "easeInOut" },
+            scale: { duration: 13, repeat: Infinity, ease: "easeInOut" }
+          }}
+        >
+          √(x² + y²)
+        </motion.div>
+      </div>
+      
       <div className="auth-container">
         <div className="auth-header">
-          <h1 className="auth-title">Smart Course</h1>
+          <div className="auth-title-container">
+            <Sparkles className="auth-sparkles" />
+            <h1 className="auth-title">SmartCourse</h1>
+          </div>
           <p className="auth-subtitle typing-animation">
             {isLogin ? 'Войдите в свой аккаунт' : 'Создайте новый аккаунт'}
           </p>
@@ -266,12 +406,11 @@ function AuthPage() {
         </div>
       </div>
       
-      <div className="auth-illustration">
-        <div className="illustration-content">
-          <div className="math-formula-large">∫f(x)dx = F(x) + C</div>
-          <div className="math-formula-large">∑n=1∞ 1/n² = π²/6</div>
-          <div className="math-formula-large">e^(iπ) + 1 = 0</div>
-        </div>
+
+      
+      {/* Переключатель темы в нижнем левом углу */}
+      <div className="fixed bottom-6 left-6 z-50">
+        <ThemeToggle darkMode={darkMode} toggleTheme={toggleTheme} />
       </div>
     </div>
   );
@@ -279,9 +418,9 @@ function AuthPage() {
 
 export default function App() {
   const [darkMode, setDarkMode] = useState<boolean>(() => {
-    // Загружаем сохраненную тему из localStorage
+    // Загружаем сохраненную тему из localStorage, по умолчанию тёмная тема
     const savedTheme = localStorage.getItem('darkMode');
-    return savedTheme ? savedTheme === 'true' : false;
+    return savedTheme ? savedTheme === 'true' : true; // По умолчанию тёмная тема
   });
 
   const toggleTheme = () => {
@@ -339,8 +478,8 @@ export default function App() {
       <AuthProvider>
         <Router>
           <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/auth" element={<AuthPage />} />
+          <Route path="/" element={<LandingPage darkMode={darkMode} toggleTheme={toggleTheme} />} />
+          <Route path="/auth" element={<AuthPage darkMode={darkMode} toggleTheme={toggleTheme} />} />
           <Route path="/register" element={<RegisterPage />} />
           
           {/* Dashboard route - redirects to courses */}

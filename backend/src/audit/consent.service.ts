@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { AuditService } from './audit.service';
+import { ConsentType } from '@prisma/client';
 
 @Injectable()
 export class ConsentService {
@@ -11,7 +12,7 @@ export class ConsentService {
 
   async giveConsent(
     userId: string,
-    consentType: string,
+    consentType: ConsentType,
     ipAddress?: string,
     userAgent?: string,
   ) {
@@ -72,7 +73,7 @@ export class ConsentService {
     requestingUserRole: string,
     page: number = 1,
     limit: number = 10,
-    consentType?: string,
+    consentType?: ConsentType,
   ) {
     // Only admins can see all consents
     if (requestingUserRole !== 'ADMIN') {
@@ -132,7 +133,7 @@ export class ConsentService {
     }));
   }
 
-  async checkUserConsent(userId: string, consentType: string): Promise<boolean> {
+  async checkUserConsent(userId: string, consentType: ConsentType): Promise<boolean> {
     const consent = await this.prisma.consent.findFirst({
       where: {
         userId,
