@@ -6,40 +6,21 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
-// Enums для ролей и других типов
-enum UserRole {
-  ADMIN
-  CURATOR
-  CLIENT
-  CANDIDATE
-}
-
-enum ConsentType {
-  PERSONAL_DATA
-  MARKETING
-  ANALYTICS
-  COOKIES
-}
-
-enum AuditAction {
-  CREATE
-  READ
-  UPDATE
-  DELETE
-  LOGIN
-  LOGOUT
-}
+// Константы для ролей и других типов (SQLite не поддерживает enum'ы)
+// UserRole: ADMIN, CURATOR, CLIENT, CANDIDATE
+// ConsentType: PERSONAL_DATA, MARKETING, ANALYTICS, COOKIES  
+// AuditAction: CREATE, READ, UPDATE, DELETE, LOGIN, LOGOUT
 
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
   password  String
   fullName  String
-  role      UserRole @default(CANDIDATE)
+  role      String   @default("CANDIDATE")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -87,15 +68,15 @@ model Contact {
 
 model AuditLog {
   id        String      @id @default(cuid())
-  userId    String
-  action    AuditAction
+  userId    String?
+  action    String      // CREATE, READ, UPDATE, DELETE, LOGIN, LOGOUT
   entity    String      // Название сущности (User, Org, Contact)
-  entityId  String      // ID сущности
+  entityId  String?     // ID сущности (опциональное для общих операций)
   details   String?     // JSON с деталями изменений
   timestamp DateTime    @default(now())
 
   // Связи
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("audit_logs")
 }
@@ -103,7 +84,7 @@ model AuditLog {
 model Consent {
   id        String      @id @default(cuid())
   userId    String
-  type      ConsentType
+  type      String      // PERSONAL_DATA, MARKETING, ANALYTICS, COOKIES
   grantedAt DateTime    @default(now())
   basis     String      // Основание для обработки (согласие, договор, etc.)
   details   String?     // Дополнительная информация

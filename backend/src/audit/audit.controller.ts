@@ -38,7 +38,7 @@ export class AuditController {
     const end = endDate ? new Date(endDate) : undefined;
 
     return this.auditService.getAuditLogs(
-      req.user.userId,
+      req.user.id,
       req.user.role,
       pageNum,
       limitNum,
@@ -54,7 +54,7 @@ export class AuditController {
   @Resource('audit')
   @Action('read')
   getAuditStats(@Request() req) {
-    return this.auditService.getAuditStats(req.user.userId, req.user.role);
+    return this.auditService.getAuditStats(req.user.id, req.user.role);
   }
 
   @Get(':id')
@@ -62,6 +62,6 @@ export class AuditController {
   @Resource('audit')
   @Action('read')
   getAuditLog(@Param('id') id: string, @Request() req) {
-    return this.auditService.getAuditLogById(id, req.user.userId, req.user.role);
+    return this.auditService.getAuditLogById(id, req.user.id, req.user.role);
   }
 }

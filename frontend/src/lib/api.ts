@@ -73,7 +73,7 @@ class ApiClient {
           message: 'Произошла ошибка сервера',
           statusCode: response.status 
         }));
-        console.error('API error response:', errorData);
+        console.error('API request failed:', { url, status: response.status, error: errorData.message });
         throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
       }
 
@@ -81,7 +81,6 @@ class ApiClient {
       console.log('API response data:', responseData);
       return responseData;
     } catch (error) {
-      console.error('API request failed:', error);
       if (error instanceof Error) {
         throw error;
       }
@@ -171,10 +170,15 @@ class ApiClient {
     });
   }
 
-  async deleteCourse(id: string): Promise<any> {
+  async deleteCourse(id: string): Promise<void> {
     return this.request(`/courses/${id}`, {
       method: 'DELETE',
     });
+  }
+
+  // Методы для работы с дашбордом
+  async getDashboardStats(): Promise<any> {
+    return this.request('/dashboard/stats');
   }
 
   // Методы для работы с токенами

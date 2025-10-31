@@ -12,11 +12,13 @@ import { RegisterPage } from './components/RegisterPage';
 import { OrganizationsList } from './components/crm/OrganizationsList';
 import { OrganizationDetails } from './components/crm/OrganizationDetails';
 import { ContactsList } from './components/crm/ContactsList';
+import { Dashboard } from './components/Dashboard';
 import { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ThemeToggle } from './components/layout/ThemeToggle';
+import { TestAccountSelector } from './components/TestAccountSelector';
 import './styles/AuthPage.css';
 
 // Создаем QueryClient
@@ -59,9 +61,20 @@ function AuthPage({ darkMode, toggleTheme }: AuthPageProps) {
   const [fullName, setFullName] = useState('');
   const [role, setRole] = useState('CLIENT');
   const [adminPassword, setAdminPassword] = useState('');
+  const [isTransitioning, setIsTransitioning] = useState(false);
   
   const navigate = useNavigate();
-  const { login, register, error, isLoading, clearError } = useAuth();
+  const { login, register, error, isLoading, clearError, getRedirectPath } = useAuth();
+
+  const handleToggleForm = () => {
+    setIsTransitioning(true);
+    
+    // Добавляем небольшую задержку для плавной анимации
+    setTimeout(() => {
+      setIsLogin(!isLogin);
+      setIsTransitioning(false);
+    }, 200);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,25 +103,29 @@ function AuthPage({ darkMode, toggleTheme }: AuthPageProps) {
     
     try {
       if (isLogin) {
-        await login(email, password);
+        const user = await login(email, password);
+        // Перенаправление на основе роли пользователя
+        const redirectPath = getRedirectPath(user.role);
+        navigate(redirectPath);
       } else {
         await register(email, password, fullName, role);
+        // После регистрации всегда перенаправляем на курсы
+        navigate('/courses');
       }
-      // Переход на страницу курсов после успешного входа/регистрации
-      navigate('/courses');
     } catch (error) {
       // Ошибка уже обработана в контексте
-      console.error('Auth error:', error);
     }
   };
 
   const handleDemoLogin = async () => {
     try {
       // Демо вход с тестовыми данными
-      await login('demo@example.com', 'demo123');
-      navigate('/courses');
+      const user = await login('demo@example.com', 'demo123');
+      // Перенаправление на основе роли пользователя
+      const redirectPath = getRedirectPath(user.role);
+      navigate(redirectPath);
     } catch (error) {
-      console.error('Demo login error:', error);
+      // Ошибка уже обработана в контексте
     }
   };
 
@@ -117,8 +134,8 @@ function AuthPage({ darkMode, toggleTheme }: AuthPageProps) {
       {/* Анимированные математические формулы */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <motion.div 
-          className="absolute text-4xl text-blue-300/20 dark:text-blue-400/20 font-serif" 
-          style={{ top: '15%', left: '10%' }}
+          className="absolute text-5xl text-blue-700/40 dark:text-blue-400/20 font-serif" 
+          style={{ top: '20%', left: '15%' }}
           initial={{ opacity: 0, y: -20 }}
           animate={{ 
             opacity: 0.3,
@@ -138,8 +155,8 @@ function AuthPage({ darkMode, toggleTheme }: AuthPageProps) {
         </motion.div>
         
         <motion.div 
-          className="absolute text-3xl text-purple-300/20 dark:text-purple-400/20 font-serif" 
-          style={{ top: '25%', right: '15%' }}
+          className="absolute text-4xl text-purple-700/40 dark:text-purple-400/20 font-serif" 
+          style={{ top: '30%', right: '20%' }}
           initial={{ opacity: 0, y: -20 }}
           animate={{ 
             opacity: 0.3,
@@ -159,7 +176,7 @@ function AuthPage({ darkMode, toggleTheme }: AuthPageProps) {
         </motion.div>
         
         <motion.div 
-          className="absolute text-5xl text-indigo-300/20 dark:text-indigo-400/20 font-serif" 
+          className="absolute text-6xl text-indigo-700/40 dark:text-indigo-400/20 font-serif" 
           style={{ top: '70%', left: '20%' }}
           initial={{ opacity: 0, y: -20 }}
           animate={{ 
@@ -180,7 +197,7 @@ function AuthPage({ darkMode, toggleTheme }: AuthPageProps) {
         </motion.div>
         
         <motion.div 
-          className="absolute text-3xl text-emerald-300/20 dark:text-emerald-400/20 font-serif" 
+          className="absolute text-3xl text-emerald-700/40 dark:text-emerald-400/20 font-serif" 
           style={{ top: '80%', right: '25%' }}
           initial={{ opacity: 0, y: -20 }}
           animate={{ 
@@ -201,7 +218,7 @@ function AuthPage({ darkMode, toggleTheme }: AuthPageProps) {
         </motion.div>
         
         <motion.div 
-          className="absolute text-4xl text-rose-300/20 dark:text-rose-400/20 font-serif" 
+          className="absolute text-4xl text-rose-700/40 dark:text-rose-400/20 font-serif" 
           style={{ top: '45%', left: '5%' }}
           initial={{ opacity: 0, y: -20 }}
           animate={{ 
@@ -222,7 +239,7 @@ function AuthPage({ darkMode, toggleTheme }: AuthPageProps) {
         </motion.div>
         
         <motion.div 
-          className="absolute text-3xl text-amber-300/20 dark:text-amber-400/20 font-serif" 
+          className="absolute text-3xl text-amber-700/40 dark:text-amber-400/20 font-serif" 
           style={{ top: '60%', right: '10%' }}
           initial={{ opacity: 0, y: -20 }}
           animate={{ 
@@ -243,7 +260,7 @@ function AuthPage({ darkMode, toggleTheme }: AuthPageProps) {
         </motion.div>
       </div>
       
-      <div className="auth-container">
+      <div className={`auth-container ${isTransitioning ? 'transitioning' : ''}`}>
         <div className="auth-header">
           <div className="auth-title-container">
             <Sparkles className="auth-sparkles" />
@@ -254,7 +271,7 @@ function AuthPage({ darkMode, toggleTheme }: AuthPageProps) {
           </p>
         </div>
         
-        <form className="auth-form" onSubmit={handleSubmit}>
+        <form className={`auth-form ${isTransitioning ? 'transitioning' : ''}`} onSubmit={handleSubmit}>
           {error && (
             <div className="error-message" style={{ 
               color: '#ef4444', 
@@ -362,27 +379,14 @@ function AuthPage({ darkMode, toggleTheme }: AuthPageProps) {
           </button>
           
           {isLogin && (
-            <button 
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                setEmail('test@example.com');
-                setPassword('Test123!');
-              }} 
-              className="auth-button" 
-              style={{ 
-                marginTop: '15px', 
-                backgroundColor: '#10b981', 
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                fontWeight: '600',
-                boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)'
-              }}
-            >
-              <span style={{ fontSize: '18px' }}>🔑</span> Тестовый аккаунт
-            </button>
+            <div style={{ marginTop: '15px' }}>
+              <TestAccountSelector 
+                onSelectAccount={(email, password) => {
+                  setEmail(email);
+                  setPassword(password);
+                }}
+              />
+            </div>
           )}
         </form>
         
@@ -392,7 +396,7 @@ function AuthPage({ darkMode, toggleTheme }: AuthPageProps) {
             <button
               type="button"
               className="auth-toggle"
-              onClick={() => setIsLogin(!isLogin)}
+              onClick={handleToggleForm}
             >
               {isLogin ? 'Зарегистрироваться' : 'Войти'}
             </button>
@@ -409,7 +413,7 @@ function AuthPage({ darkMode, toggleTheme }: AuthPageProps) {
 
       
       {/* Переключатель темы в нижнем левом углу */}
-      <div className="fixed bottom-6 left-6 z-50">
+      <div className="fixed bottom-4 left-4 z-50" style={{ position: 'fixed', bottom: '16px', left: '16px', zIndex: 9999 }}>
         <ThemeToggle darkMode={darkMode} toggleTheme={toggleTheme} />
       </div>
     </div>
@@ -482,19 +486,13 @@ export default function App() {
           <Route path="/auth" element={<AuthPage darkMode={darkMode} toggleTheme={toggleTheme} />} />
           <Route path="/register" element={<RegisterPage />} />
           
-          {/* Dashboard route - redirects to courses */}
+          {/* Защищённые маршруты для всех авторизованных пользователей */}
           <Route path="/dashboard" element={
             <ProtectedLayout>
-              <CoursesList 
-                onCourseSelect={(courseId) => window.location.href = `/editor/${courseId}`} 
-                onCreateCourse={() => window.location.href = '/courses/create'} 
-                darkMode={darkMode} 
-                toggleTheme={toggleTheme} 
-              />
+              <Dashboard />
             </ProtectedLayout>
           } />
           
-          {/* Защищённые маршруты для всех авторизованных пользователей */}
           <Route path="/courses" element={
             <ProtectedLayout>
               <CoursesList 

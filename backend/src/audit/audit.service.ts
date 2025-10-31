@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
-import { AuditAction } from '@prisma/client';
+import { AuditAction } from './audit-action.enum';
 
 @Injectable()
 export class AuditService {
@@ -14,6 +14,12 @@ export class AuditService {
     details?: any,
   ) {
     try {
+      // Skip audit log creation if userId is undefined or null
+      if (!userId) {
+        console.warn('Skipping audit log creation: userId is undefined or null');
+        return null;
+      }
+
       return await this.prisma.auditLog.create({
         data: {
           userId,

@@ -4,7 +4,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 25%, #f3e8ff 50%, #fdf2f8 75%, #fef3c7 100%);
+  background: linear-gradient(135deg, #93c5fd 0%, #a5b4fc 25%, #d8b4fe 50%, #f9a8d4 75%, #fbbf24 100%);
   position: relative;
   overflow: hidden;
   animation: gradientAnimation 8s ease infinite;
@@ -22,7 +22,7 @@
   100% { background-position: 0% 50%; }
 }
 
-/* Белая стека как тетрадь на фоне */
+/* Сетка как тетрадь на фоне */
 .auth-page::before {
   content: '';
   position: absolute;
@@ -31,13 +31,21 @@
   right: 0;
   bottom: 0;
   background-image: 
-    linear-gradient(90deg, transparent 49px, rgba(255,255,255,0.1) 49px, rgba(255,255,255,0.1) 51px, transparent 51px),
-    linear-gradient(rgba(255,255,255,0.1) 0.1em, transparent 0.1em);
+    linear-gradient(90deg, transparent 49px, rgba(55, 65, 81, 0.15) 49px, rgba(55, 65, 81, 0.15) 51px, transparent 51px),
+    linear-gradient(rgba(55, 65, 81, 0.15) 0.1em, transparent 0.1em);
   background-size: 50px 30px;
-  opacity: 0.4;
+  opacity: 0.6;
   pointer-events: none;
   z-index: 1;
   animation: gridMove 20s linear infinite;
+}
+
+/* Белая сетка для тёмной темы */
+.dark .auth-page::before {
+  background-image: 
+    linear-gradient(90deg, transparent 49px, rgba(255,255,255,0.1) 49px, rgba(255,255,255,0.1) 51px, transparent 51px),
+    linear-gradient(rgba(255,255,255,0.1) 0.1em, transparent 0.1em);
+  opacity: 0.4;
 }
 
 @keyframes gridMove {
@@ -59,6 +67,19 @@
   position: relative;
   z-index: 2;
   animation: slideInFromLeft 0.8s ease-out;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: visible;
+}
+
+/* Анимация для состояния перехода */
+.auth-container.transitioning {
+  transform: scale(0.98);
+  opacity: 0.8;
+}
+
+.auth-form.transitioning {
+  transform: scale(0.98);
+  opacity: 0.8;
 }
 
 @keyframes slideInFromLeft {
@@ -167,6 +188,8 @@
     0 0 0 1px rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.3);
   animation: fadeInUp 1s ease-out 0.3s both;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: visible;
 }
 
 .dark .auth-form {
@@ -192,6 +215,40 @@
   margin-bottom: 25px;
   animation: fadeInUp 0.8s ease-out;
   animation-fill-mode: both;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: top;
+}
+
+/* Анимации для появления и исчезновения элементов формы */
+.form-group-enter {
+  opacity: 0;
+  transform: translateY(-20px) scaleY(0.8);
+  max-height: 0;
+  margin-bottom: 0;
+  overflow: hidden;
+}
+
+.form-group-enter-active {
+  opacity: 1;
+  transform: translateY(0) scaleY(1);
+  max-height: 200px;
+  margin-bottom: 25px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.form-group-exit {
+  opacity: 1;
+  transform: translateY(0) scaleY(1);
+  max-height: 200px;
+  margin-bottom: 25px;
+}
+
+.form-group-exit-active {
+  opacity: 0;
+  transform: translateY(-20px) scaleY(0.8);
+  max-height: 0;
+  margin-bottom: 0;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .form-group:nth-child(1) { animation-delay: 0.1s; }
@@ -255,20 +312,9 @@ select.auth-input {
   box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
   position: relative;
   overflow: hidden;
-  animation: pulse 2s infinite;
 }
 
-@keyframes pulse {
-  0% {
-    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
-  }
-  50% {
-    box-shadow: 0 8px 35px rgba(59, 130, 246, 0.5);
-  }
-  100% {
-    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
-  }
-}
+
 
 .auth-button:hover {
   transform: translateY(-3px);
@@ -306,7 +352,7 @@ select.auth-input {
 .auth-toggle {
   background: none;
   border: none;
-  color: #a5b4fc;
+  color: #3b82f6;
   font-weight: 600;
   cursor: pointer;
   text-decoration: underline;
@@ -315,6 +361,15 @@ select.auth-input {
 }
 
 .auth-toggle:hover {
+  color: #1d4ed8;
+}
+
+/* Стили для тёмной темы */
+.dark .auth-toggle {
+  color: #a5b4fc;
+}
+
+.dark .auth-toggle:hover {
   color: white;
 }
 
@@ -341,7 +396,7 @@ select.auth-input {
 }
 
 .demo-link::after {
-  content: '→';
+  content: '';
   margin-left: 5px;
   transition: transform 0.3s ease;
 }

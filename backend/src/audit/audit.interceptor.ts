@@ -77,7 +77,7 @@ export class AuditInterceptor implements NestInterceptor {
         next: (response) => {
           // Log successful operations
           this.auditService.createAuditLog(
-            user.userId,
+            user?.userId || user?.id,
             auditAction,
             entity,
             resourceId,
@@ -91,7 +91,7 @@ export class AuditInterceptor implements NestInterceptor {
         error: (error) => {
           // Log failed operations
           this.auditService.createAuditLog(
-            user.userId,
+            user?.userId || user?.id,
             auditAction,
             entity,
             resourceId,

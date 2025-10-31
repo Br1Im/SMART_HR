@@ -13,11 +13,12 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<User>;
   register: (email: string, password: string, fullName: string, role: string) => Promise<void>;
   logout: () => void;
   error: string | null;
   clearError: () => void;
+  getRedirectPath: (userRole: string) => string;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -60,7 +61,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     checkAuth();
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string): Promise<User> => {
     try {
       setIsLoading(true);
       setError(null);
@@ -82,10 +83,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser(response.user);
       
       console.log('Login successful, user set');
+      
+      return response.user;
     } catch (error) {
-      console.error('Login error details:', error);
       const errorMessage = error instanceof Error ? error.message : 'Произошла ошибка при входе';
-      console.error('Setting error message:', errorMessage);
       setError(errorMessage);
       throw error;
     } finally {
@@ -125,6 +126,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setError(null);
   };
 
+  const getRedirectPath = (userRole: string): string => {
+    switch (userRole) {
+      case 'ADMIN':
+        return '/dashboard';
+      case 'CURATOR':
+        return '/dashboard';
+      default:
+        return '/courses';
+    }
+  };
+
   const value: AuthContextType = {
     user,
     isAuthenticated: !!user,
@@ -134,6 +146,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     logout,
     error,
     clearError,
+    getRedirectPath,
   };
 
   return (

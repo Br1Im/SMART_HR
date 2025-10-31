@@ -15,7 +15,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RbacGuard } from '../auth/guards/rbac.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Resource, Action } from '../auth/decorators/resource.decorator';
-import { ConsentType } from '@prisma/client';
+import { ConsentType } from '../common/enums/consent-type.enum';
 
 class GiveConsentDto {
   consentType: string;

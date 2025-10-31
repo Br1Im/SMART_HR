@@ -10,6 +10,7 @@ import { AuditModule } from './audit/audit.module';
 import { AuditInterceptor } from './audit/audit.interceptor';
 import { CoursesModule } from './courses/courses.module';
 import { BlocksModule } from './blocks/blocks.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { BlocksModule } from './blocks/blocks.module';
     AuditModule,
     CoursesModule,
     BlocksModule,
+    DashboardModule,
   ],
   controllers: [AppController],
   providers: [

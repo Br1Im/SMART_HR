@@ -50,6 +50,16 @@ export class RbacGuard implements CanActivate {
         { resource: 'lessons', action: 'update' },
         { resource: 'lessons', action: 'delete' },
       ],
+      MANAGER: [
+        { resource: 'courses', action: 'read' },
+        { resource: 'courses', action: 'create' },
+        { resource: 'courses', action: 'update' },
+        { resource: 'courses', action: 'delete' },
+        { resource: 'lessons', action: 'read' },
+        { resource: 'lessons', action: 'create' },
+        { resource: 'lessons', action: 'update' },
+        { resource: 'lessons', action: 'delete' },
+      ],
       CURATOR: [
         { resource: 'courses', action: 'read' },
         { resource: 'courses', action: 'create' },

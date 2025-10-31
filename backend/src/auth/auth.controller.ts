@@ -21,7 +21,7 @@ export class AuthController {
   @Get('profile')
   @UseGuards(JwtAuthGuard)
   async getProfile(@Request() req) {
-    return this.authService.getUserById(req.user.userId);
+    return this.authService.getUserById(req.user.id);
   }
 
   @Get('verify')
@@ -30,7 +30,7 @@ export class AuthController {
     return {
       valid: true,
       user: {
-        userId: req.user.userId,
+        userId: req.user.id,
         role: req.user.role,
       },
     };

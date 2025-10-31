@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { AuditService } from './audit.service';
-import { ConsentType } from '@prisma/client';
+import { ConsentType } from '../common/enums/consent-type.enum';
+import { AuditAction } from './audit-action.enum';
 
 @Injectable()
 export class ConsentService {
@@ -42,7 +43,7 @@ export class ConsentService {
     // Create audit log
     await this.auditService.createAuditLog(
       userId,
-      'CREATE',
+      AuditAction.CREATE,
       'consent',
       consent.id,
       {

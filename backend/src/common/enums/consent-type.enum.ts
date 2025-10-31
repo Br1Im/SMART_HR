@@ -1,0 +1,6 @@
+export enum ConsentType {
+  PERSONAL_DATA = 'PERSONAL_DATA',
+  MARKETING = 'MARKETING',
+  ANALYTICS = 'ANALYTICS',
+  COOKIES = 'COOKIES',
+}
