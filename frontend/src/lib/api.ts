@@ -181,6 +181,36 @@ class ApiClient {
     return this.request('/dashboard/stats');
   }
 
+  // Методы для работы с пользователями
+  async getUsers(page?: number, limit?: number, search?: string, role?: string): Promise<any> {
+    const params = new URLSearchParams();
+    if (page) params.append('page', page.toString());
+    if (limit) params.append('limit', limit.toString());
+    if (search) params.append('search', search);
+    if (role) params.append('role', role);
+    
+    const queryString = params.toString();
+    const endpoint = queryString ? `/users?${queryString}` : '/users';
+    
+    return this.request(endpoint);
+  }
+
+  // Методы для работы с аудитом
+  async getAuditHistory(page?: number, limit?: number, entity?: string, action?: string, startDate?: string, endDate?: string): Promise<any> {
+    const params = new URLSearchParams();
+    if (page) params.append('page', page.toString());
+    if (limit) params.append('limit', limit.toString());
+    if (entity) params.append('entity', entity);
+    if (action) params.append('action', action);
+    if (startDate) params.append('startDate', startDate);
+    if (endDate) params.append('endDate', endDate);
+    
+    const queryString = params.toString();
+    const endpoint = queryString ? `/audit?${queryString}` : '/audit';
+    
+    return this.request(endpoint);
+  }
+
   // Методы для работы с токенами
   setToken(token: string): void {
     localStorage.setItem('authToken', token);

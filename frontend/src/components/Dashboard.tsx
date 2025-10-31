@@ -17,12 +17,15 @@ import {
   LogIn,
   LogOut,
   Activity,
-  Building
+  Building,
+  History
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from './ui/button';
 import { useNavigate } from 'react-router-dom';
 import { apiClient } from '../lib/api';
+import { AuditHistoryModal } from './AuditHistoryModal';
+import { ThemeToggle } from './layout/ThemeToggle';
 
 interface DashboardStats {
   totalCourses: number;
@@ -42,7 +45,12 @@ interface DashboardStats {
   };
 }
 
-export function Dashboard() {
+interface DashboardProps {
+  darkMode: boolean;
+  toggleTheme: () => void;
+}
+
+export function Dashboard({ darkMode, toggleTheme }: DashboardProps) {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [stats, setStats] = useState<DashboardStats>({
@@ -52,17 +60,17 @@ export function Dashboard() {
     completedCourses: 0,
     organizations: 0,
     contacts: 0,
-    recentActivity: [],
     changes: {
-      totalCourses: '',
-      activeCourses: '',
-      totalStudents: '',
-      completedCourses: '',
-      organizations: '',
-      contacts: '',
+      totalCourses: '+0%',
+      activeCourses: '+0%',
+      totalStudents: '+0%',
+      completedCourses: '+0%',
+      organizations: '+0%',
+      contacts: '+0%'
     }
   });
   const [loading, setLoading] = useState(true);
+  const [isAuditHistoryOpen, setIsAuditHistoryOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Загрузка реальных данных из API
@@ -351,10 +359,21 @@ export function Dashboard() {
           transition={{ duration: 0.5, delay: 0.3 }}
           className="bg-card border border-border rounded-lg p-6"
         >
-          <h2 className="text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
-            <Clock className="w-5 h-5" />
-            Последние активности
-          </h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
+              <Clock className="w-5 h-5" />
+              Последние активности
+            </h2>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsAuditHistoryOpen(true)}
+              className="flex items-center gap-2"
+            >
+              <History className="w-4 h-4" />
+              Посмотреть всю историю
+            </Button>
+          </div>
           <div className="space-y-4">
             {stats.recentActivity && stats.recentActivity.length > 0 ? (
               stats.recentActivity.map((activity) => (
@@ -380,6 +399,17 @@ export function Dashboard() {
             )}
           </div>
         </motion.div>
+      </div>
+
+      {/* Модальное окно истории аудита */}
+      <AuditHistoryModal
+        isOpen={isAuditHistoryOpen}
+        onClose={() => setIsAuditHistoryOpen(false)}
+      />
+
+      {/* Кнопка переключения темы в нижнем левом углу */}
+      <div className="fixed bottom-6 left-6 z-50">
+        <ThemeToggle darkMode={darkMode} toggleTheme={toggleTheme} />
       </div>
     </div>
   );
@@ -430,31 +460,165 @@ const getActivityIcon = (action: string, entity: string) => {
   }
 };
 
+// Функция для перевода названий сущностей
+const translateEntity = (entity: string): string => {
+  const entityTranslations: Record<string, string> = {
+    'dashboard': 'панель управления',
+    'courses': 'курсы',
+    'course': 'курс',
+    'users': 'пользователи',
+    'user': 'пользователь',
+    'organizations': 'организации',
+    'organization': 'организация',
+    'contacts': 'контакты',
+    'contact': 'контакт',
+    'audit': 'журнал аудита',
+    'lessons': 'уроки',
+    'lesson': 'урок',
+    'quizzes': 'тесты',
+    'quiz': 'тест',
+    'blocks': 'блоки',
+    'block': 'блок',
+    'progress': 'прогресс',
+    'profile': 'профиль',
+    'consent': 'согласие',
+    'applications': 'заявки',
+    'application': 'заявка'
+  };
+  
+  return entityTranslations[entity.toLowerCase()] || entity;
+};
+
+// Функция для перевода действий
+const translateAction = (action: string): string => {
+  const actionTranslations: Record<string, string> = {
+    'create': 'создал',
+    'read': 'просмотрел',
+    'update': 'обновил',
+    'delete': 'удалил',
+    'login': 'вошёл в систему',
+    'logout': 'вышел из системы'
+  };
+  
+  return actionTranslations[action.toLowerCase()] || action;
+};
+
 // Функция для форматирования описания активности
 const formatActivityDescription = (action: string, entity: string, details: any, user: any) => {
   const userName = user?.fullName || user?.email || 'Пользователь';
+  const translatedEntity = translateEntity(entity);
+  const translatedAction = translateAction(action);
   
+  // Специальные случаи для более естественного перевода
   switch (action.toLowerCase()) {
     case 'create':
-      if (entity.toLowerCase().includes('course')) {
-        return `${userName} создал новый курс`;
-      } else if (entity.toLowerCase().includes('user')) {
-        return `Новый пользователь ${userName} зарегистрировался`;
-      } else if (entity.toLowerCase().includes('org')) {
-        return `${userName} создал новую организацию`;
-      } else if (entity.toLowerCase().includes('contact')) {
-        return `${userName} добавил новый контакт`;
+      switch (entity.toLowerCase()) {
+        case 'course':
+        case 'courses':
+          return `${userName} создал новый курс`;
+        case 'user':
+        case 'users':
+          return `Зарегистрирован новый пользователь: ${userName}`;
+        case 'organization':
+        case 'organizations':
+          return `${userName} добавил новую организацию`;
+        case 'contact':
+        case 'contacts':
+          return `${userName} добавил новый контакт`;
+        case 'lesson':
+        case 'lessons':
+          return `${userName} создал новый урок`;
+        case 'quiz':
+        case 'quizzes':
+          return `${userName} создал новый тест`;
+        case 'block':
+        case 'blocks':
+          return `${userName} добавил новый блок в курс`;
+        default:
+          return `${userName} создал новый элемент: ${translatedEntity}`;
       }
-      return `${userName} создал ${entity}`;
+      
+    case 'read':
+      switch (entity.toLowerCase()) {
+        case 'dashboard':
+          return `${userName} просмотрел панель управления`;
+        case 'course':
+        case 'courses':
+          return `${userName} просмотрел курсы`;
+        case 'user':
+        case 'users':
+          return `${userName} просмотрел список пользователей`;
+        case 'organization':
+        case 'organizations':
+          return `${userName} просмотрел организации`;
+        case 'contact':
+        case 'contacts':
+          return `${userName} просмотрел контакты`;
+        case 'audit':
+          return `${userName} просмотрел журнал аудита`;
+        case 'lesson':
+        case 'lessons':
+          return `${userName} просмотрел уроки`;
+        case 'quiz':
+        case 'quizzes':
+          return `${userName} просмотрел тесты`;
+        default:
+          return `${userName} просмотрел: ${translatedEntity}`;
+      }
+      
     case 'update':
-      return `${userName} обновил ${entity}`;
+      switch (entity.toLowerCase()) {
+        case 'course':
+        case 'courses':
+          return `${userName} обновил курс`;
+        case 'user':
+        case 'users':
+          return `${userName} обновил данные пользователя`;
+        case 'organization':
+        case 'organizations':
+          return `${userName} обновил информацию об организации`;
+        case 'contact':
+        case 'contacts':
+          return `${userName} обновил контактную информацию`;
+        case 'profile':
+          return `${userName} обновил свой профиль`;
+        case 'progress':
+          return `${userName} обновил прогресс обучения`;
+        default:
+          return `${userName} обновил: ${translatedEntity}`;
+      }
+      
     case 'delete':
-      return `${userName} удалил ${entity}`;
+      switch (entity.toLowerCase()) {
+        case 'course':
+        case 'courses':
+          return `${userName} удалил курс`;
+        case 'user':
+        case 'users':
+          return `${userName} удалил пользователя`;
+        case 'organization':
+        case 'organizations':
+          return `${userName} удалил организацию`;
+        case 'contact':
+        case 'contacts':
+          return `${userName} удалил контакт`;
+        case 'lesson':
+        case 'lessons':
+          return `${userName} удалил урок`;
+        case 'quiz':
+        case 'quizzes':
+          return `${userName} удалил тест`;
+        default:
+          return `${userName} удалил: ${translatedEntity}`;
+      }
+      
     case 'login':
-      return `${userName} вошел в систему`;
+      return `${userName} вошёл в систему`;
+      
     case 'logout':
       return `${userName} вышел из системы`;
+      
     default:
-      return `${userName} выполнил действие ${action} с ${entity}`;
+      return `${userName} ${translatedAction} ${translatedEntity}`;
   }
 };

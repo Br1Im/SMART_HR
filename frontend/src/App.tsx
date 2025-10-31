@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Route, Routes, Link, useNavigate, useParams } 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import LandingPage from './components/LandingPage';
 import { CoursesList } from './components/CoursesList';
+import { CoursesListWrapper } from './components/CoursesListWrapper';
 import { CourseEditor } from './components/CourseEditor';
 import { CreateCourse } from './components/CreateCourse';
 import { StudentView } from './components/StudentView';
@@ -18,7 +19,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ThemeToggle } from './components/layout/ThemeToggle';
-import { TestAccountSelector } from './components/TestAccountSelector';
+import { TestAccountModal } from './components/TestAccountModal';
 import './styles/AuthPage.css';
 
 // Создаем QueryClient
@@ -62,6 +63,7 @@ function AuthPage({ darkMode, toggleTheme }: AuthPageProps) {
   const [role, setRole] = useState('CLIENT');
   const [adminPassword, setAdminPassword] = useState('');
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [isTestAccountModalOpen, setIsTestAccountModalOpen] = useState(false);
   
   const navigate = useNavigate();
   const { login, register, error, isLoading, clearError, getRedirectPath } = useAuth();
@@ -380,12 +382,22 @@ function AuthPage({ darkMode, toggleTheme }: AuthPageProps) {
           
           {isLogin && (
             <div style={{ marginTop: '15px' }}>
-              <TestAccountSelector 
-                onSelectAccount={(email, password) => {
-                  setEmail(email);
-                  setPassword(password);
-                }}
-              />
+              <button 
+                type="button"
+                onClick={() => setIsTestAccountModalOpen(true)}
+                className="w-full flex items-center justify-center px-4 py-3 
+                           bg-gradient-to-r from-blue-600 to-purple-600 
+                           dark:from-blue-500 dark:to-purple-500
+                           text-white 
+                           rounded-lg 
+                           hover:from-blue-700 hover:to-purple-700 
+                           dark:hover:from-blue-600 dark:hover:to-purple-600
+                           transition-all duration-200 
+                           shadow-lg hover:shadow-xl
+                           dark:shadow-gray-900/50 dark:hover:shadow-gray-900/70"
+              >
+                <span className="font-medium">Выбрать тестовый аккаунт</span>
+              </button>
             </div>
           )}
         </form>
@@ -416,6 +428,17 @@ function AuthPage({ darkMode, toggleTheme }: AuthPageProps) {
       <div className="fixed bottom-4 left-4 z-50" style={{ position: 'fixed', bottom: '16px', left: '16px', zIndex: 9999 }}>
         <ThemeToggle darkMode={darkMode} toggleTheme={toggleTheme} />
       </div>
+
+      {/* Модальное окно выбора тестового аккаунта */}
+      <TestAccountModal
+        isOpen={isTestAccountModalOpen}
+        onClose={() => setIsTestAccountModalOpen(false)}
+        onSelectAccount={(email, password) => {
+          setEmail(email);
+          setPassword(password);
+        }}
+        darkMode={darkMode}
+      />
     </div>
   );
 }
@@ -467,9 +490,11 @@ export default function App() {
     console.log('Current classes before change:', document.body.className);
     
     if (darkMode) {
+      document.documentElement.classList.add('dark');
       document.body.classList.add('dark');
       console.log('Added dark class');
     } else {
+      document.documentElement.classList.remove('dark');
       document.body.classList.remove('dark');
       console.log('Removed dark class');
     }
@@ -489,15 +514,13 @@ export default function App() {
           {/* Защищённые маршруты для всех авторизованных пользователей */}
           <Route path="/dashboard" element={
             <ProtectedLayout>
-              <Dashboard />
+              <Dashboard darkMode={darkMode} toggleTheme={toggleTheme} />
             </ProtectedLayout>
           } />
           
           <Route path="/courses" element={
             <ProtectedLayout>
-              <CoursesList 
-                onCourseSelect={(courseId) => window.location.href = `/editor/${courseId}`} 
-                onCreateCourse={() => window.location.href = '/courses/create'} 
+              <CoursesListWrapper 
                 darkMode={darkMode} 
                 toggleTheme={toggleTheme} 
               />

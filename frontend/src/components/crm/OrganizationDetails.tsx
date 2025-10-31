@@ -48,8 +48,8 @@ interface CreateContactData {
 
 // API функции
 const fetchOrganization = async (id: string): Promise<Organization> => {
-  const token = localStorage.getItem('token');
-  const response = await fetch(`/api/orgs/${id}`, {
+  const token = localStorage.getItem('authToken');
+  const response = await fetch(`/api/organizations/${id}`, {
     headers: {
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json',
@@ -64,8 +64,8 @@ const fetchOrganization = async (id: string): Promise<Organization> => {
 };
 
 const updateOrganization = async (id: string, data: UpdateOrgData): Promise<Organization> => {
-  const token = localStorage.getItem('token');
-  const response = await fetch(`/api/orgs/${id}`, {
+  const token = localStorage.getItem('authToken');
+  const response = await fetch(`/api/organizations/${id}`, {
     method: 'PATCH',
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -83,7 +83,7 @@ const updateOrganization = async (id: string, data: UpdateOrgData): Promise<Orga
 };
 
 const createContact = async (data: CreateContactData & { orgId: string }): Promise<Contact> => {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('authToken');
   const response = await fetch('/api/contacts', {
     method: 'POST',
     headers: {
@@ -102,7 +102,7 @@ const createContact = async (data: CreateContactData & { orgId: string }): Promi
 };
 
 const deleteContact = async (id: string): Promise<void> => {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('authToken');
   const response = await fetch(`/api/contacts/${id}`, {
     method: 'DELETE',
     headers: {

@@ -11,6 +11,13 @@ export class RbacService {
     'ADMIN': [
       { resource: '*', actions: ['*'] }, // Админ имеет доступ ко всему
     ],
+    'MANAGER': [
+      { resource: 'organizations', actions: ['read', 'create', 'update', 'delete'] },
+      { resource: 'contacts', actions: ['read', 'create', 'update', 'delete'] },
+      { resource: 'users', actions: ['read', 'update'] },
+      { resource: 'audit', actions: ['read'] },
+      { resource: 'dashboard', actions: ['read'] },
+    ],
     'CURATOR': [
       { resource: 'courses', actions: ['read', 'create', 'update', 'delete'] },
       { resource: 'lessons', actions: ['read', 'create', 'update', 'delete'] },
@@ -18,6 +25,7 @@ export class RbacService {
       { resource: 'students', actions: ['read'] },
       { resource: 'progress', actions: ['read'] },
       { resource: 'audit', actions: ['read'] },
+      { resource: 'users', actions: ['read'] },
     ],
     'CLIENT': [
       { resource: 'courses', actions: ['read'] },
@@ -25,6 +33,7 @@ export class RbacService {
       { resource: 'quizzes', actions: ['read'] },
       { resource: 'progress', actions: ['read', 'update'] }, // Свой прогресс
       { resource: 'profile', actions: ['read', 'update'] },
+      { resource: 'users', actions: ['read'] },
     ],
     'CANDIDATE': [
       { resource: 'courses', actions: ['read'] },

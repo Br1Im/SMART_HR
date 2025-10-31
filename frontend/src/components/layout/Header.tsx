@@ -4,7 +4,7 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Status } from '../../types';
-import { ThemeToggle } from './ThemeToggle';
+
 
 interface HeaderProps {
   title_1: string;
@@ -144,10 +144,7 @@ export function Header({
               </Button>
             </div>
 
-            {/* Кнопка переключения темы */}
-            {toggleTheme ? (
-              <ThemeToggle darkMode={darkMode || false} toggleTheme={toggleTheme} />
-            ) : null}
+
 
             {/* Кнопка создания */}
             {onCreateItem && (

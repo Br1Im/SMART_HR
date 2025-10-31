@@ -11,6 +11,7 @@ import { AuditInterceptor } from './audit/audit.interceptor';
 import { CoursesModule } from './courses/courses.module';
 import { BlocksModule } from './blocks/blocks.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
     CoursesModule,
     BlocksModule,
     DashboardModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [

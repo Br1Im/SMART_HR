@@ -33,8 +33,8 @@ interface CreateOrgData {
 
 // API функции
 const fetchOrganizations = async (): Promise<Organization[]> => {
-  const token = localStorage.getItem('token');
-  const response = await fetch('/api/orgs', {
+  const token = localStorage.getItem('authToken');
+  const response = await fetch('/api/organizations', {
     headers: {
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json',
@@ -45,12 +45,13 @@ const fetchOrganizations = async (): Promise<Organization[]> => {
     throw new Error('Ошибка загрузки организаций');
   }
   
-  return response.json();
+  const result = await response.json();
+  return result.data || [];
 };
 
 const createOrganization = async (data: CreateOrgData): Promise<Organization> => {
-  const token = localStorage.getItem('token');
-  const response = await fetch('/api/orgs', {
+  const token = localStorage.getItem('authToken');
+  const response = await fetch('/api/organizations', {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -68,8 +69,8 @@ const createOrganization = async (data: CreateOrgData): Promise<Organization> =>
 };
 
 const deleteOrganization = async (id: string): Promise<void> => {
-  const token = localStorage.getItem('token');
-  const response = await fetch(`/api/orgs/${id}`, {
+  const token = localStorage.getItem('authToken');
+  const response = await fetch(`/api/organizations/${id}`, {
     method: 'DELETE',
     headers: {
       'Authorization': `Bearer ${token}`,

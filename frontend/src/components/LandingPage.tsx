@@ -4,7 +4,7 @@ import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { BookOpen, Brain, BarChart3, Target, Globe, Award, ArrowRight, Sparkles, Users, Clock } from 'lucide-react';
-import { ThemeToggle } from './layout/ThemeToggle';
+
 
 const CountUp = ({ end, duration = 2000, suffix = '' }) => {
   const [count, setCount] = useState(0);
@@ -1053,10 +1053,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ darkMode: propDarkMode, toggl
         </div>
       </footer>
 
-      {/* Переключатель темы в нижнем левом углу */}
-      <div className="fixed bottom-4 left-4 z-50" style={{ position: 'fixed', bottom: '16px', left: '16px', zIndex: 9999 }}>
-        <ThemeToggle darkMode={darkMode} toggleTheme={toggleTheme} />
-      </div>
+
     </main>
   );
 };

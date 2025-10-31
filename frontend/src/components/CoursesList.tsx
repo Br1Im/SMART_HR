@@ -20,6 +20,7 @@ interface CoursesListProps {
 type ViewMode = 'grid' | 'list';
 
 export function CoursesList({ onCourseSelect, onCreateCourse, darkMode, toggleTheme }: CoursesListProps) {
+  const navigate = useNavigate();
   const [courses, setCourses] = useState<Course[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'draft' | 'published' | 'hidden' | 'all'>('all');
@@ -188,7 +189,7 @@ export function CoursesList({ onCourseSelect, onCreateCourse, darkMode, toggleTh
                           size="sm" 
                           variant="outline"
                           className="border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
-                          onClick={() => window.location.href = `/editor/${course.id}`}
+                          onClick={() => navigate(`/editor/${course.id}`)}
                         >
                           <Edit className="w-3 h-3" />
                         </Button>
@@ -260,7 +261,7 @@ export function CoursesList({ onCourseSelect, onCreateCourse, darkMode, toggleTh
                             size="sm" 
                             variant="outline"
                             className="border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
-                            onClick={() => window.location.href = `/editor/${course.id}`}
+                            onClick={() => navigate(`/editor/${course.id}`)}
                           >
                             <Edit className="w-3 h-3" />
                           </Button>
