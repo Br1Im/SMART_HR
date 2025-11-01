@@ -21,14 +21,14 @@ COPY . .
 # Собираем приложение
 RUN chmod +x ./node_modules/.bin/vite && ./node_modules/.bin/vite build
 
-# Проверяем, что dist создался
-RUN ls -la /app/dist
+# Проверяем, что build создался
+RUN ls -la /app/build
 
 # Этап production
 FROM nginx:alpine
 
 # Копируем собранное приложение
-COPY --from=builder /app/dist /usr/share/nginx/html
+COPY --from=builder /app/build /usr/share/nginx/html
 
 # Копируем конфигурацию Nginx
 COPY nginx.conf /etc/nginx/nginx.conf
