@@ -13,6 +13,9 @@ RUN npm ci && npm cache clean --force
 # Копируем исходный код
 COPY . .
 
+# Добавляем node_modules/.bin в PATH
+ENV PATH="/app/node_modules/.bin:$PATH"
+
 # Открываем порт
 EXPOSE 3000
 
