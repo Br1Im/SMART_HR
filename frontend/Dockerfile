@@ -17,4 +17,4 @@ COPY . .
 EXPOSE 3000
 
 # Команда для запуска в режиме разработки
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+CMD ["node", "/app/node_modules/.bin/vite", "--host", "0.0.0.0"]
