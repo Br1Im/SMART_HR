@@ -1,0 +1,48 @@
+services:
+  database:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: smartcourse
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: "postgresql://postgres:postgres123@database:5432/smartcourse"
+      JWT_SECRET: "your-super-secret-jwt-key-change-in-production"
+      NODE_ENV: "production"
+    ports:
+      - "3001:3001"
+    depends_on:
+      - database
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+    environment:
+      VITE_API_URL: "http://backend:3001"
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+volumes:
+  postgres_data:
+
+networks:
+  app-network:
+    driver: bridge
