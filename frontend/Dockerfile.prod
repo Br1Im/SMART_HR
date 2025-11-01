@@ -1,0 +1,35 @@
+# Multi-stage build для production
+FROM node:18-alpine as builder
+
+# Устанавливаем рабочую директорию
+WORKDIR /app
+
+# Копируем package.json и package-lock.json
+COPY package*.json ./
+
+# Устанавливаем зависимости
+RUN npm ci --only=production --silent
+
+# Копируем исходный код
+COPY . .
+
+# Устанавливаем права на выполнение для node_modules/.bin
+RUN chmod -R +x node_modules/.bin
+
+# Собираем проект
+RUN npm run build
+
+# Production stage с Nginx
+FROM nginx:alpine
+
+# Копируем собранное приложение
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Копируем конфигурацию Nginx
+COPY nginx.conf /etc/nginx/nginx.conf
+
+# Открываем порт
+EXPOSE 80
+
+# Запускаем Nginx
+CMD ["nginx", "-g", "daemon off;"]
