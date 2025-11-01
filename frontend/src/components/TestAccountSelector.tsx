@@ -19,7 +19,7 @@ interface TestAccountSelectorProps {
 const testAccounts: TestAccount[] = [
   {
     email: 'admin@smartcourse.ru',
-    password: 'admin123',
+    password: 'password123',
     fullName: 'Системный администратор',
     role: 'ADMIN',
     description: 'Полный доступ ко всем функциям системы',
@@ -28,7 +28,7 @@ const testAccounts: TestAccount[] = [
   },
   {
     email: 'curator@smartcourse.ru',
-    password: 'curator123',
+    password: 'password123',
     fullName: 'Куратор курсов',
     role: 'CURATOR',
     description: 'Управление курсами и контентом',
@@ -37,7 +37,7 @@ const testAccounts: TestAccount[] = [
   },
   {
     email: 'manager@smartcourse.ru',
-    password: 'manager123',
+    password: 'password123',
     fullName: 'Менеджер',
     role: 'MANAGER',
     description: 'Управление пользователями и организациями',
@@ -46,7 +46,7 @@ const testAccounts: TestAccount[] = [
   },
   {
     email: 'client@smartcourse.ru',
-    password: 'client123',
+    password: 'password123',
     fullName: 'Клиент компании',
     role: 'CLIENT',
     description: 'Доступ к корпоративным курсам',
