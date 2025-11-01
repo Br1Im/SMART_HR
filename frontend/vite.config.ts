@@ -4,7 +4,11 @@ import { defineConfig } from 'vite';
   import path from 'path';
 
   export default defineConfig({
-    plugins: [react()],
+    plugins: [
+      react({
+        tsDecorators: true,
+      })
+    ],
     resolve: {
       extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
       alias: {
@@ -52,11 +56,20 @@ import { defineConfig } from 'vite';
     build: {
       target: 'esnext',
       outDir: 'build',
+      rollupOptions: {
+        output: {
+          manualChunks: undefined,
+        },
+      },
+    },
+    define: {
+      global: 'globalThis',
     },
     server: {
       port: 3000,
       open: true,
       host: '0.0.0.0',
+      allowedHosts: ['1hr-course.ru'],
       proxy: {
         '/api': {
           target: 'http://localhost:3001',
