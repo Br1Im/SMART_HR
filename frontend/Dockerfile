@@ -7,18 +7,19 @@ WORKDIR /app
 # Копируем package.json и package-lock.json
 COPY package*.json ./
 
+# Создаем пользователя для безопасности
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S reactjs -u 1001
+
 # Устанавливаем зависимости
 RUN npm ci && npm cache clean --force
 
 # Копируем исходный код
 COPY . .
 
-# Создаем пользователя для безопасности
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S reactjs -u 1001
-
-# Меняем владельца файлов
-RUN chown -R reactjs:nodejs /app
+# Меняем владельца файлов и устанавливаем правильные права
+RUN chown -R reactjs:nodejs /app && \
+    chmod -R 755 /app/node_modules/.bin
 USER reactjs
 
 # Открываем порт
