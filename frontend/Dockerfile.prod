@@ -12,6 +12,9 @@ RUN npm ci && npm cache clean --force
 # Даем права на выполнение для node_modules/.bin
 RUN chmod -R +x node_modules/.bin
 
+# Добавляем node_modules/.bin в PATH
+ENV PATH="/app/node_modules/.bin:$PATH"
+
 # Копируем исходный код
 COPY . .
 
