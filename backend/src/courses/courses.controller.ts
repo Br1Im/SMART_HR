@@ -13,7 +13,11 @@ export class CoursesController {
   @UseGuards(JwtAuthGuard, RbacGuard)
   @RequirePermissions({ resource: 'courses', action: 'read' })
   @Get()
-  findAll() {
+  findAll(@Request() req) {
+    // Если пользователь обычный (не ADMIN/CURATOR), возвращаем курсы с информацией о статусе
+    if (req.user.role === 'CLIENT' || req.user.role === 'CANDIDATE') {
+      return this.coursesService.findAllWithUserStatus(req.user.id);
+    }
     return this.coursesService.findAll();
   }
 
@@ -43,5 +47,37 @@ export class CoursesController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.coursesService.remove(id);
+  }
+
+  // Endpoints для избранных курсов
+  @UseGuards(JwtAuthGuard)
+  @Post(':id/favorite')
+  addToFavorites(@Param('id') courseId: string, @Request() req) {
+    return this.coursesService.addToFavorites(req.user.id, courseId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id/favorite')
+  removeFromFavorites(@Param('id') courseId: string, @Request() req) {
+    return this.coursesService.removeFromFavorites(req.user.id, courseId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('favorites/my')
+  getFavorites(@Request() req) {
+    return this.coursesService.getFavorites(req.user.id);
+  }
+
+  // Endpoints для начатых курсов
+  @UseGuards(JwtAuthGuard)
+  @Post(':id/start')
+  markAsStarted(@Param('id') courseId: string, @Request() req) {
+    return this.coursesService.markAsStarted(req.user.id, courseId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('started/my')
+  getStartedCourses(@Request() req) {
+    return this.coursesService.getStartedCourses(req.user.id);
   }
 }

@@ -74,6 +74,13 @@ class ApiClient {
           statusCode: response.status 
         }));
         console.error('API request failed:', { url, status: response.status, error: errorData.message });
+        
+        // Если это ошибка авторизации, удаляем токен
+        if (response.status === 401) {
+          console.log('Unauthorized request, removing token');
+          this.removeToken();
+        }
+        
         throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
       }
 
@@ -143,7 +150,51 @@ class ApiClient {
   async reorderBlocks(blocks: { id: string; position: number }[]): Promise<any> {
     return this.request('/blocks/reorder', {
       method: 'POST',
-      body: JSON.stringify(blocks),
+      body: JSON.stringify({ blocks }),
+    });
+  }
+
+  // Методы для работы с уроками (через блоки)
+  async createLesson(data: any): Promise<any> {
+    return this.request('/blocks', {
+      method: 'POST',
+      body: JSON.stringify({
+        title: data.title,
+        content: data.content || '',
+        type: data.type || 'LESSON',
+        courseId: data.courseId,
+        position: data.position || 0
+      }),
+    });
+  }
+
+  async updateLesson(id: string, data: any): Promise<any> {
+    return this.request(`/blocks/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({
+        title: data.title,
+        content: data.content,
+        type: data.type
+      }),
+    });
+  }
+
+  async deleteLesson(id: string): Promise<any> {
+    return this.request(`/blocks/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // Метод для создания модуля (создает блок с типом MODULE)
+  async createModule(data: any): Promise<any> {
+    return this.request('/blocks', {
+      method: 'POST',
+      body: JSON.stringify({
+        title: data.title,
+        courseId: data.courseId,
+        type: 'MODULE',
+        content: data.description || ''
+      }),
     });
   }
 
@@ -176,9 +227,57 @@ class ApiClient {
     });
   }
 
+  // Методы для работы с избранными курсами
+  async addToFavorites(courseId: string): Promise<any> {
+    return this.request(`/courses/${courseId}/favorite`, {
+      method: 'POST',
+    });
+  }
+
+  async removeFromFavorites(courseId: string): Promise<any> {
+    return this.request(`/courses/${courseId}/favorite`, {
+      method: 'DELETE',
+    });
+  }
+
+  async getFavorites(): Promise<any[]> {
+    return this.request('/courses/favorites/my');
+  }
+
+  // Методы для работы с начатыми курсами
+  async markAsStarted(courseId: string): Promise<any> {
+    return this.request(`/courses/${courseId}/start`, {
+      method: 'POST',
+    });
+  }
+
+  async getStartedCourses(): Promise<any[]> {
+    return this.request('/courses/started/my');
+  }
+
   // Методы для работы с дашбордом
   async getDashboardStats(): Promise<any> {
     return this.request('/dashboard/stats');
+  }
+
+  // Методы для работы с прогрессом
+  async markLessonComplete(lessonId: string, courseId: string): Promise<any> {
+    return this.request(`/progress/lesson/${lessonId}/complete`, {
+      method: 'POST',
+      body: JSON.stringify({ courseId }),
+    });
+  }
+
+  async getCourseProgress(courseId: string): Promise<any> {
+    return this.request(`/progress/course/${courseId}`);
+  }
+
+  async getMyProgress(): Promise<any[]> {
+    return this.request('/progress/my');
+  }
+
+  async getCompletedLessons(courseId: string): Promise<any[]> {
+    return this.request(`/progress/course/${courseId}/lessons`);
   }
 
   // Методы для работы с пользователями

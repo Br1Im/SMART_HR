@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsOptional, IsNumber, IsUUID } from 'class-validator';
+import { IsNotEmpty, IsString, IsOptional, IsNumber } from 'class-validator';
 
 export class CreateBlockDto {
   @IsNotEmpty()
@@ -14,6 +14,10 @@ export class CreateBlockDto {
   type?: string;
 
   @IsNotEmpty()
-  @IsUUID()
+  @IsString()
   courseId: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  position: number;
 }

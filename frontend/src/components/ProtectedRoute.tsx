@@ -13,10 +13,27 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   allowedRoles = [],
   requireAuth = true,
 }) => {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
+
+  // Показываем загрузку пока проверяется аутентификация
+  if (isLoading) {
+    return (
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '50vh',
+        padding: '20px',
+        textAlign: 'center'
+      }}>
+        <div>Загрузка...</div>
+      </div>
+    );
+  }
 
   // Если требуется авторизация, но пользователь не авторизован
   if (requireAuth && !isAuthenticated) {
+    console.log('User not authenticated, redirecting to /auth');
     return <Navigate to="/auth" replace />;
   }
 

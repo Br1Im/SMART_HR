@@ -1,14 +1,18 @@
-import { BookOpen, Eye, Copy, Trash2 } from 'lucide-react';
+import { BookOpen, Eye, Copy, Trash2, Heart } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { StatusIcon } from '../StatusIcon';
 import { Course } from '../../types';
 import { motion, Variants } from 'framer-motion';
+import { useState } from 'react';
+import apiClient from '../../lib/api';
+import { useRoleCheck } from '../ProtectedRoute';
 
 interface CourseCardProps {
   course: Course;
   onSelect: (courseId: string) => void;
   viewMode: 'grid' | 'list';
+  onFavoriteChange?: (courseId: string, isFavorite: boolean) => void;
 }
 
 const cardVariants: Variants = {
@@ -20,7 +24,33 @@ const cardVariants: Variants = {
   }
 }
 
-export function CourseCard({ course, onSelect, viewMode }: CourseCardProps) {
+export function CourseCard({ course, onSelect, viewMode, onFavoriteChange }: CourseCardProps) {
+  const { isAdmin, isCurator } = useRoleCheck();
+  const canManageCourse = isAdmin() || isCurator();
+  const [isFavorite, setIsFavorite] = useState(course.isFavorite || false);
+  const [isUpdatingFavorite, setIsUpdatingFavorite] = useState(false);
+
+  const handleFavoriteToggle = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isUpdatingFavorite) return;
+
+    setIsUpdatingFavorite(true);
+    try {
+      if (isFavorite) {
+        await apiClient.removeFromFavorites(course.id);
+        setIsFavorite(false);
+        onFavoriteChange?.(course.id, false);
+      } else {
+        await apiClient.addToFavorites(course.id);
+        setIsFavorite(true);
+        onFavoriteChange?.(course.id, true);
+      }
+    } catch (error) {
+      console.error('Ошибка при обновлении избранного:', error);
+    } finally {
+      setIsUpdatingFavorite(false);
+    }
+  };
   if (viewMode === 'grid') {
     return (
       <motion.div variants={cardVariants} className="h-[380px]">
@@ -42,22 +72,36 @@ export function CourseCard({ course, onSelect, viewMode }: CourseCardProps) {
           <CardContent className="flex-1 flex flex-col justify-end">
             <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
               <span>Обновлён: {new Date(course.updatedAt).toLocaleDateString('ru-RU')}</span>
-              <span>{course.modules.reduce((total, module) => total + module.lessons.length, 0)} уроков</span>
+              <span>{course.modules?.reduce((total, module) => total + (module.lessons?.length || 0), 0) || 0} уроков</span>
             </div>
             <div className="flex gap-2">
               <Button
                 size="sm"
                 onClick={() => onSelect(course.id)}
+                className="flex-1"
               >
                 <Eye className="w-3 h-3 mr-1" />
                 Открыть
               </Button>
-              <Button size="sm" variant="outline">
-                <Copy className="w-3 h-3" />
+              <Button 
+                size="sm" 
+                variant={isFavorite ? "default" : "outline"}
+                onClick={handleFavoriteToggle}
+                disabled={isUpdatingFavorite}
+                className={isFavorite ? "bg-red-500 hover:bg-red-600 text-white" : ""}
+              >
+                <Heart className={`w-3 h-3 ${isFavorite ? 'fill-current' : ''}`} />
               </Button>
-              <Button size="sm" variant="outline">
-                <Trash2 className="w-3 h-3" />
-              </Button>
+              {canManageCourse && (
+                <>
+                  <Button size="sm" variant="outline">
+                    <Copy className="w-3 h-3" />
+                  </Button>
+                  <Button size="sm" variant="outline">
+                    <Trash2 className="w-3 h-3" />
+                  </Button>
+                </>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -82,7 +126,7 @@ export function CourseCard({ course, onSelect, viewMode }: CourseCardProps) {
                 <p className="text-sm text-gray-600 truncate mb-2">{course.description}</p>
                 <div className="flex items-center justify-between text-xs text-gray-500">
                   <span>Обновлён: {new Date(course.updatedAt).toLocaleDateString('ru-RU')}</span>
-                  <span>{course.modules.reduce((total, module) => total + module.lessons.length, 0)} уроков</span>
+                  <span>{course.modules?.reduce((total, module) => total + (module.lessons?.length || 0), 0) || 0} уроков</span>
                 </div>
               </div>
             </div>
@@ -94,12 +138,25 @@ export function CourseCard({ course, onSelect, viewMode }: CourseCardProps) {
                 <Eye className="w-3 h-3 mr-1" />
                 Открыть
               </Button>
-              <Button size="sm" variant="outline">
-                <Copy className="w-3 h-3" />
+              <Button 
+                size="sm" 
+                variant={isFavorite ? "default" : "outline"}
+                onClick={handleFavoriteToggle}
+                disabled={isUpdatingFavorite}
+                className={isFavorite ? "bg-red-500 hover:bg-red-600 text-white" : ""}
+              >
+                <Heart className={`w-3 h-3 ${isFavorite ? 'fill-current' : ''}`} />
               </Button>
-              <Button size="sm" variant="outline">
-                <Trash2 className="w-3 h-3" />
-              </Button>
+              {canManageCourse && (
+                <>
+                  <Button size="sm" variant="outline">
+                    <Copy className="w-3 h-3" />
+                  </Button>
+                  <Button size="sm" variant="outline">
+                    <Trash2 className="w-3 h-3" />
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </CardContent>

@@ -48,12 +48,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const token = apiClient.getToken();
       if (token) {
         try {
+          console.log('Checking authentication with token:', token.substring(0, 20) + '...');
           const profile = await apiClient.getProfile();
+          console.log('Profile loaded successfully:', profile);
           setUser(profile);
         } catch (error) {
+          console.error('Authentication check failed:', error);
+          // Токен недействителен, удаляем его
           apiClient.removeToken();
           setUser(null);
+          // Не перенаправляем здесь, пусть ProtectedRoute это сделает
         }
+      } else {
+        console.log('No token found in localStorage');
       }
       setIsLoading(false);
     };

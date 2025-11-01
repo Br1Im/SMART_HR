@@ -21,19 +21,9 @@ export class BlocksService {
     });
   }
 
-  async create(createBlockDto: any) {
-    const maxPositionBlock = await this.prisma.block.findFirst({
-      where: { courseId: createBlockDto.courseId },
-      orderBy: { position: 'desc' },
-    });
-
-    const position = maxPositionBlock ? maxPositionBlock.position + 1 : 1;
-
+  async create(createBlockDto: CreateBlockDto) {
     return this.prisma.block.create({
-      data: {
-        ...createBlockDto,
-        position,
-      },
+      data: createBlockDto,
     });
   }
 

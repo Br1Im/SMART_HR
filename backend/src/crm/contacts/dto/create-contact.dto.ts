@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsOptional, IsEmail, IsUUID } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsEmail } from 'class-validator';
 
 export class CreateContactDto {
   @IsString({ message: 'Полное имя должно быть строкой' })
@@ -21,7 +21,7 @@ export class CreateContactDto {
   @IsOptional()
   notes?: string;
 
-  @IsUUID('4', { message: 'Некорректный ID организации' })
+  @IsString({ message: 'Некорректный ID организации' })
   @IsNotEmpty({ message: 'ID организации обязателен' })
   orgId: string;
 }

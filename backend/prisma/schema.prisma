@@ -25,10 +25,14 @@ model User {
   updatedAt DateTime @updatedAt
 
   // Связи
-  ownedOrgs    Org[]       @relation("OrgOwner")
-  auditLogs    AuditLog[]
-  consents     Consent[]
-  courses      Course[]
+  ownedOrgs       Org[]             @relation("OrgOwner")
+  auditLogs       AuditLog[]
+  consents        Consent[]
+  courses         Course[]
+  favoriteCourses FavoriteCourse[]
+  startedCourses  StartedCourse[]
+  lessonProgress  LessonProgress[]
+  courseProgress  CourseProgress[]
 
   @@map("users")
 }
@@ -109,8 +113,12 @@ model Course {
   updatedAt   DateTime @updatedAt
 
   // Связи
-  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  blocks      Block[]
+  author          User             @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  blocks          Block[]
+  favoritedBy     FavoriteCourse[]
+  startedBy       StartedCourse[]
+  lessonProgress  LessonProgress[]
+  courseProgress  CourseProgress[]
 
   @@map("courses")
 }
@@ -127,6 +135,75 @@ model Block {
 
   // Связи
   course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  progress    LessonProgress[]
 
   @@map("blocks")
+}
+
+model FavoriteCourse {
+  id        String   @id @default(cuid())
+  userId    String
+  courseId  String
+  createdAt DateTime @default(now())
+
+  // Связи
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])
+  @@map("favorite_courses")
+}
+
+model StartedCourse {
+  id        String   @id @default(cuid())
+  userId    String
+  courseId  String
+  startedAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Связи
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])
+  @@map("started_courses")
+}
+
+model LessonProgress {
+  id          String   @id @default(cuid())
+  userId      String
+  lessonId    String   // ID блока с типом LESSON
+  courseId    String
+  isCompleted Boolean  @default(false)
+  completedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Связи
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson Block  @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+  @@map("lesson_progress")
+}
+
+model CourseProgress {
+  id               String   @id @default(cuid())
+  userId           String
+  courseId         String
+  completedLessons Int      @default(0)
+  totalLessons     Int      @default(0)
+  progressPercent  Float    @default(0)
+  isCompleted      Boolean  @default(false)
+  completedAt      DateTime?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Связи
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])
+  @@map("course_progress")
 }

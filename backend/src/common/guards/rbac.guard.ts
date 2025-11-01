@@ -49,6 +49,10 @@ export class RbacGuard implements CanActivate {
         { resource: 'lessons', action: 'create' },
         { resource: 'lessons', action: 'update' },
         { resource: 'lessons', action: 'delete' },
+        { resource: 'blocks', action: 'read' },
+        { resource: 'blocks', action: 'create' },
+        { resource: 'blocks', action: 'update' },
+        { resource: 'blocks', action: 'delete' },
       ],
       MANAGER: [
         { resource: 'courses', action: 'read' },
@@ -59,6 +63,10 @@ export class RbacGuard implements CanActivate {
         { resource: 'lessons', action: 'create' },
         { resource: 'lessons', action: 'update' },
         { resource: 'lessons', action: 'delete' },
+        { resource: 'blocks', action: 'read' },
+        { resource: 'blocks', action: 'create' },
+        { resource: 'blocks', action: 'update' },
+        { resource: 'blocks', action: 'delete' },
       ],
       CURATOR: [
         { resource: 'courses', action: 'read' },
@@ -67,14 +75,19 @@ export class RbacGuard implements CanActivate {
         { resource: 'lessons', action: 'read' },
         { resource: 'lessons', action: 'create' },
         { resource: 'lessons', action: 'update' },
+        { resource: 'blocks', action: 'read' },
+        { resource: 'blocks', action: 'create' },
+        { resource: 'blocks', action: 'update' },
       ],
       CLIENT: [
         { resource: 'courses', action: 'read' },
         { resource: 'lessons', action: 'read' },
+        { resource: 'blocks', action: 'read' },
       ],
       CANDIDATE: [
         { resource: 'courses', action: 'read' },
         { resource: 'lessons', action: 'read' },
+        { resource: 'blocks', action: 'read' },
       ],
     };
 

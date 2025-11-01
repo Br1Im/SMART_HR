@@ -12,6 +12,7 @@ import { CoursesModule } from './courses/courses.module';
 import { BlocksModule } from './blocks/blocks.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { UsersModule } from './users/users.module';
+import { ProgressModule } from './progress/progress.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { UsersModule } from './users/users.module';
     BlocksModule,
     DashboardModule,
     UsersModule,
+    ProgressModule,
   ],
   controllers: [AppController],
   providers: [

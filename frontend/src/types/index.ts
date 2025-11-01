@@ -3,30 +3,49 @@ export type Status = 'draft' | 'published' | 'hidden';
 export interface Course {
   id: string;
   title: string;
-  description?: string;
+  description: string;
   price?: number;
-  duration?: number;
-  level: string;
-  isPublished: boolean;
-  authorId: string;
+  duration?: string;
+  level?: string;
+  status: Status;
   createdAt: string;
   updatedAt: string;
-  author?: User;
-  blocks?: Block[];
+  authorId?: string;
+  author?: {
+    id: string;
+    name: string;
+    email: string;
+  };
+  modules: Module[];
+  isFavorite?: boolean;
+  isStarted?: boolean;
+}
+
+export interface Module {
+  id: string;
+  title: string;
+  courseId: string;
+  order: number;
+  lessons: Lesson[];
+}
+
+export interface Lesson {
+  id: string;
+  title: string;
+  moduleId: string;
+  order: number;
+  status: Status;
+  blocks: Block[];
 }
 
 
 
 export interface Block {
   id: string;
-  title: string;
-  content?: string;
-  type: string;
-  position: number;
-  courseId: string;
-  createdAt: string;
-  updatedAt: string;
-  course?: Course;
+  type: 'heading' | 'text' | 'image' | 'video' | 'audio' | 'file' | 'quiz';
+  content: any;
+  order: number;
+  lessonId: string;
 }
 
 export interface Quiz {

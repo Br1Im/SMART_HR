@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { CoursesList } from './CoursesList';
+import { useRoleCheck } from './ProtectedRoute';
 
 interface CoursesListWrapperProps {
   darkMode: boolean;
@@ -8,9 +9,15 @@ interface CoursesListWrapperProps {
 
 export function CoursesListWrapper({ darkMode, toggleTheme }: CoursesListWrapperProps) {
   const navigate = useNavigate();
+  const { isAdminOrCurator } = useRoleCheck();
 
   const handleCourseSelect = (courseId: string) => {
-    navigate(`/editor/${courseId}`);
+    // Админы и кураторы идут в редактор, клиенты и кандидаты - в студенческий режим
+    if (isAdminOrCurator()) {
+      navigate(`/editor/${courseId}`);
+    } else {
+      navigate(`/student/${courseId}`);
+    }
   };
 
   const handleCreateCourse = () => {

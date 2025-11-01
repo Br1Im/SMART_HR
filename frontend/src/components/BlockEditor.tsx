@@ -18,9 +18,10 @@ interface BlockEditorProps {
   onDragStart?: (e: React.DragEvent, blockId: string) => void;
   onDragOver?: (e: React.DragEvent) => void;
   onDrop?: (e: React.DragEvent, targetBlockId: string) => void;
+  onDoubleClick?: () => void;
 }
 
-export function BlockEditor({ block, isSelected, onSelect, onUpdate, onDelete, onDuplicate, onDragStart, onDragOver, onDrop }: BlockEditorProps) {
+export function BlockEditor({ block, isSelected, onSelect, onUpdate, onDelete, onDuplicate, onDragStart, onDragOver, onDrop, onDoubleClick }: BlockEditorProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [showQuizEditor, setShowQuizEditor] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -224,6 +225,7 @@ export function BlockEditor({ block, isSelected, onSelect, onUpdate, onDelete, o
             isSelected ? 'ring-2 ring-blue-500' : ''
           } ${isDragging ? 'opacity-50 scale-95' : ''} ${isDragOver ? 'border-2 border-dashed border-primary' : ''}`}
           onClick={onSelect}
+          onDoubleClick={onDoubleClick}
         >
         <CardContent className="p-0">
           <div className="flex">

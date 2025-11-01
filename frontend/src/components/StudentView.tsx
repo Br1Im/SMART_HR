@@ -8,6 +8,7 @@ import { StatusIcon } from './StatusIcon';
 import { Course, Module, Lesson, Block, Quiz, QuizAttempt } from '../types';
 import { mockCourses, mockQuizzes } from '../data/mockData';
 import { ImageWithFallback } from './figma/ImageWithFallback';
+import apiClient from '../lib/api';
 
 interface StudentViewProps {
   courseId: string;
@@ -20,15 +21,47 @@ export function StudentView({ courseId, onBack }: StudentViewProps) {
   const [activeQuiz, setActiveQuiz] = useState<Quiz | null>(null);
   const [completedLessons, setCompletedLessons] = useState<Set<string>>(new Set());
   const [quizAttempts, setQuizAttempts] = useState<QuizAttempt[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const foundCourse = mockCourses.find(c => c.id === courseId);
-    if (foundCourse) {
-      setCourse(foundCourse);
-      // Auto-select first available lesson
-      if (foundCourse.modules.length > 0 && foundCourse.modules[0].lessons.length > 0) {
-        setSelectedLesson(foundCourse.modules[0].lessons[0]);
+    const fetchCourse = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const courseData = await apiClient.getCourse(courseId);
+        setCourse(courseData);
+        
+        // Auto-select first available lesson
+        if (courseData.modules && courseData.modules.length > 0 && courseData.modules[0].lessons && courseData.modules[0].lessons.length > 0) {
+          setSelectedLesson(courseData.modules[0].lessons[0]);
+        }
+        
+        // Automatically mark course as started when opened
+        try {
+          await apiClient.markAsStarted(courseId);
+        } catch (error) {
+          console.error('Failed to mark course as started:', error);
+        }
+
+        // Load completed lessons
+        try {
+          const completedLessonsData = await apiClient.getCompletedLessons(courseId);
+          const completedLessonIds = new Set(completedLessonsData.map(item => item.lessonId));
+          setCompletedLessons(completedLessonIds);
+        } catch (error) {
+          console.error('Failed to load completed lessons:', error);
+        }
+      } catch (error) {
+        console.error('Error loading course:', error);
+        setError('Не удалось загрузить курс');
+      } finally {
+        setLoading(false);
       }
+    };
+
+    if (courseId) {
+      fetchCourse();
     }
   }, [courseId]);
 
@@ -45,7 +78,64 @@ export function StudentView({ courseId, onBack }: StudentViewProps) {
     
     // Mark lesson as completed if quiz passed
     if (attempt.status === 'passed' && selectedLesson) {
-      setCompletedLessons(prev => new Set([...prev, selectedLesson.id]));
+      handleLessonComplete(selectedLesson.id);
+    }
+  };
+
+  const handleLessonComplete = async (lessonId: string) => {
+    try {
+      // Update local state immediately
+      setCompletedLessons(prev => new Set([...prev, lessonId]));
+      
+      // Save to backend
+      await apiClient.markLessonComplete(lessonId, courseId);
+      
+      // Check if module is completed after this lesson
+      checkModuleCompletion(lessonId);
+    } catch (error) {
+      console.error('Failed to mark lesson as completed:', error);
+      // Revert local state on error
+      setCompletedLessons(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(lessonId);
+        return newSet;
+      });
+    }
+  };
+
+  const checkModuleCompletion = (newlyCompletedLessonId: string) => {
+    if (!course) return;
+
+    // Get updated completed lessons set (including the newly completed one)
+    const updatedCompletedLessons = new Set([...completedLessons, newlyCompletedLessonId]);
+
+    // Check each module for completion
+    course.modules.forEach(module => {
+      const moduleLessonIds = module.lessons.map(lesson => lesson.id);
+      const isModuleCompleted = moduleLessonIds.every(lessonId => 
+        updatedCompletedLessons.has(lessonId)
+      );
+
+      if (isModuleCompleted && moduleLessonIds.length > 0) {
+        // Module is completed, check if course is completed
+        const allLessonIds = course.modules.flatMap(m => m.lessons.map(l => l.id));
+        const isCourseCompleted = allLessonIds.every(lessonId => 
+          updatedCompletedLessons.has(lessonId)
+        );
+
+        // Update course progress
+        updateCourseProgress(isCourseCompleted);
+      }
+    });
+  };
+
+  const updateCourseProgress = async (isCompleted: boolean) => {
+    try {
+      // This will be handled by the backend when we call getCourseProgress
+      // The backend automatically calculates completion based on lesson progress
+      await apiClient.getCourseProgress(courseId);
+    } catch (error) {
+      console.error('Failed to update course progress:', error);
     }
   };
 
@@ -185,8 +275,28 @@ export function StudentView({ courseId, onBack }: StudentViewProps) {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="text-muted-foreground">Загрузка курса...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="text-red-500">{error}</p>
+      </div>
+    );
+  }
+
   if (!course) {
-    return <div>Курс не найден</div>;
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="text-muted-foreground">Курс не найден</p>
+      </div>
+    );
   }
 
   return (
@@ -209,27 +319,29 @@ export function StudentView({ courseId, onBack }: StudentViewProps) {
           <div className="space-y-2">
             <div className="flex justify-between text-xs text-muted-foreground">
               <span>Прогресс курса</span>
-              <span>{Math.round(completedLessons.size / course.modules.reduce((total, module) => total + module.lessons.length, 0) * 100)}%</span>
+              <span>{Math.round(completedLessons.size / (course.modules?.reduce((total, module) => total + (module.lessons?.length || 0), 0) || 1) * 100)}%</span>
             </div>
             <Progress 
-              value={completedLessons.size / course.modules.reduce((total, module) => total + module.lessons.length, 0) * 100} 
+              value={completedLessons.size / (course.modules?.reduce((total, module) => total + (module.lessons?.length || 0), 0) || 1) * 100} 
             />
           </div>
         </div>
 
         {/* Modules and Lessons */}
         <div className="flex-1 overflow-y-auto">
-          {course.modules.map((module) => (
+          {(course.modules || []).map((module) => (
             <div key={module.id}>
               <div className="px-4 py-3 bg-muted border-b">
                 <h3 className="text-sm text-foreground">{module.title}</h3>
               </div>
               <div>
-                {module.lessons.map((lesson) => (
+                {(module.lessons || []).map((lesson) => (
                   <div
                     key={lesson.id}
-                    className={`flex items-center justify-between px-4 py-3 hover:bg-accent/50 cursor-pointer border-b ${
-                      selectedLesson?.id === lesson.id ? 'bg-accent border-r-2 border-primary' : ''
+                    className={`flex items-center justify-between px-4 py-3 cursor-pointer border-b transition-all duration-200 ${
+                      selectedLesson?.id === lesson.id 
+                        ? 'bg-primary/10 border-r-4 border-r-primary shadow-sm' 
+                        : 'hover:bg-accent/50'
                     }`}
                     onClick={() => setSelectedLesson(lesson)}
                   >
@@ -239,7 +351,11 @@ export function StudentView({ courseId, onBack }: StudentViewProps) {
                       ) : (
                         <div className="w-4 h-4 border-2 border-border rounded-full"></div>
                       )}
-                      <span className="text-sm text-foreground truncate">{lesson.title}</span>
+                      <span className={`text-sm truncate ${
+                        selectedLesson?.id === lesson.id 
+                          ? 'text-primary font-medium' 
+                          : 'text-foreground'
+                      }`}>{lesson.title}</span>
                     </div>
                     <StatusIcon status={lesson.status} className="text-xs" />
                   </div>
@@ -290,7 +406,7 @@ export function StudentView({ courseId, onBack }: StudentViewProps) {
             {selectedLesson.blocks.length > 0 && !completedLessons.has(selectedLesson.id) && (
               <div className="mt-8 pt-6 border-t">
                 <Button 
-                  onClick={() => setCompletedLessons(prev => new Set([...prev, selectedLesson.id]))}
+                  onClick={() => handleLessonComplete(selectedLesson.id)}
                   className="w-full"
                 >
                   Завершить урок

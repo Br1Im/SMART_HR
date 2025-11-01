@@ -13,6 +13,8 @@ interface HeaderProps {
   setSearchTerm: (term: string) => void;
   statusFilter: Status | 'all';
   setStatusFilter: (status: Status | 'all') => void;
+  userFilter?: 'all' | 'favorites' | 'started';
+  setUserFilter?: (filter: 'all' | 'favorites' | 'started') => void;
   viewMode: 'grid' | 'list';
   setViewMode: (mode: 'grid' | 'list') => void;
   onCreateItem?: () => void;
@@ -28,6 +30,8 @@ export function Header({
   setSearchTerm,
   statusFilter,
   setStatusFilter,
+  userFilter,
+  setUserFilter,
   viewMode,
   setViewMode,
   onCreateItem,
@@ -94,7 +98,7 @@ export function Header({
                 />
               </motion.div>
 
-              {/* Фильтр */}
+              {/* Фильтр статуса */}
               <motion.div
                 className="w-full md:w-auto"
                 initial={{ opacity: 0, y: -10 }}
@@ -114,6 +118,28 @@ export function Header({
                   </SelectContent>
                 </Select>
               </motion.div>
+
+              {/* Фильтр пользователя */}
+              {userFilter && setUserFilter && (
+                <motion.div
+                  className="w-full md:w-auto"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 }}
+                >
+                  <Select value={userFilter} onValueChange={(value) => setUserFilter(value as 'all' | 'favorites' | 'started')}>
+                    <SelectTrigger className="w-full md:w-45">
+                      <Filter className="w-4 h-4 mr-2" />
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Все курсы</SelectItem>
+                      <SelectItem value="favorites">Избранные</SelectItem>
+                      <SelectItem value="started">Начатые</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </motion.div>
+              )}
             </div>
           </motion.div>
 

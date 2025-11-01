@@ -14,6 +14,10 @@ import { OrganizationsList } from './components/crm/OrganizationsList';
 import { OrganizationDetails } from './components/crm/OrganizationDetails';
 import { ContactsList } from './components/crm/ContactsList';
 import { Dashboard } from './components/Dashboard';
+import NewLessonPage from './pages/NewLessonPage';
+import LessonEditorDemo from './pages/LessonEditorDemo';
+import BlockEditorDemo from './pages/BlockEditorDemo';
+import CourseEditorDemo from './pages/CourseEditorDemo';
 import { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Sparkles } from 'lucide-react';
@@ -43,6 +47,23 @@ function EditorWrapper({ darkMode, toggleTheme }: { darkMode: boolean, toggleThe
   
   return (
     <CourseEditor 
+      courseId={courseId || ''} 
+      onBack={handleBack} 
+    />
+  );
+}
+
+// Компонент-обертка для страницы студента
+function StudentWrapper() {
+  const { courseId } = useParams<{ courseId: string }>();
+  const navigate = useNavigate();
+  
+  const handleBack = () => {
+    navigate('/courses');
+  };
+  
+  return (
+    <StudentView 
       courseId={courseId || ''} 
       onBack={handleBack} 
     />
@@ -511,6 +532,11 @@ export default function App() {
           <Route path="/auth" element={<AuthPage darkMode={darkMode} toggleTheme={toggleTheme} />} />
           <Route path="/register" element={<RegisterPage />} />
           
+          {/* Публичные демо-страницы для просмотра дизайна */}
+          <Route path="/demo/lesson-editor" element={<LessonEditorDemo />} />
+          <Route path="/demo/block-editor" element={<BlockEditorDemo />} />
+          <Route path="/demo/course-editor" element={<CourseEditorDemo />} />
+          
           {/* Защищённые маршруты для всех авторизованных пользователей */}
           <Route path="/dashboard" element={
             <ProtectedLayout>
@@ -540,10 +566,22 @@ export default function App() {
             </ProtectedLayout>
           } />
           
+          <Route path="/lesson/new/:moduleId" element={
+            <ProtectedLayout allowedRoles={['ADMIN', 'CURATOR']}>
+              <NewLessonPage />
+            </ProtectedLayout>
+          } />
+          
+          <Route path="/lesson-editor-demo" element={
+            <ProtectedLayout allowedRoles={['ADMIN', 'CURATOR']}>
+              <LessonEditorDemo />
+            </ProtectedLayout>
+          } />
+          
           {/* Маршруты для студентов (клиенты и кандидаты) */}
           <Route path="/student/:courseId" element={
             <ProtectedLayout allowedRoles={['CLIENT', 'CANDIDATE']}>
-              <StudentView courseId='' onBack={() => {}} />
+              <StudentWrapper />
             </ProtectedLayout>
           } />
           

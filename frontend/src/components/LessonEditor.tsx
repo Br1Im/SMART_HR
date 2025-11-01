@@ -9,18 +9,37 @@ import { Separator } from './ui/separator';
 import { StatusIcon } from './StatusIcon';
 import { BlockEditor } from './BlockEditor';
 import { QuizEditor } from './QuizEditor';
+import { SaveStatusIndicator } from './SaveStatusIndicator';
+import { useAutoSaveLesson } from '../hooks/useAutoSave';
 import { Lesson, Block } from '../types';
 
 interface LessonEditorProps {
   lesson: Lesson;
   onLessonUpdate: (lesson: Lesson) => void;
+  onLessonDelete?: (lessonId: string) => void;
+  onLessonCopy?: (lesson: Lesson) => void;
+  onNavigateToPrevious?: () => void;
+  onNavigateToNext?: () => void;
+  canNavigatePrevious?: boolean;
+  canNavigateNext?: boolean;
 }
 
-export function LessonEditor({ lesson, onLessonUpdate }: LessonEditorProps) {
+export function LessonEditor({ 
+  lesson, 
+  onLessonUpdate, 
+  onLessonDelete, 
+  onLessonCopy, 
+  onNavigateToPrevious, 
+  onNavigateToNext, 
+  canNavigatePrevious = false, 
+  canNavigateNext = false 
+}: LessonEditorProps) {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [lessonTitle, setLessonTitle] = useState(lesson.title);
   const [selectedBlock, setSelectedBlock] = useState<Block | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
+  
+  // Автосохранение урока
+  const { saveStatus, lastSaved, forceSave, errorMessage } = useAutoSaveLesson(lesson);
 
   const blockTypes = [
     { type: 'text', label: 'Текст', icon: Type },
@@ -129,8 +148,76 @@ export function LessonEditor({ lesson, onLessonUpdate }: LessonEditorProps) {
     const updatedLesson = { ...lesson, title: lessonTitle };
     onLessonUpdate(updatedLesson);
     setIsEditingTitle(false);
-    setIsSaving(true);
-    setTimeout(() => setIsSaving(false), 1000);
+  };
+
+  const moveBlockUp = () => {
+    if (!selectedBlock) {
+      alert('Выберите блок для перемещения');
+      return;
+    }
+    
+    const sortedBlocks = [...lesson.blocks].sort((a, b) => a.order - b.order);
+    const currentIndex = sortedBlocks.findIndex(b => b.id === selectedBlock.id);
+    
+    if (currentIndex <= 0) return; // Already at the top
+    
+    const updatedBlocks = lesson.blocks.map(block => {
+      if (block.id === selectedBlock.id) {
+        return { ...block, order: sortedBlocks[currentIndex - 1].order };
+      } else if (block.id === sortedBlocks[currentIndex - 1].id) {
+        return { ...block, order: selectedBlock.order };
+      }
+      return block;
+    });
+    
+    const updatedLesson = { ...lesson, blocks: updatedBlocks };
+    onLessonUpdate(updatedLesson);
+  };
+
+  const moveBlockDown = () => {
+    if (!selectedBlock) {
+      alert('Выберите блок для перемещения');
+      return;
+    }
+    
+    const sortedBlocks = [...lesson.blocks].sort((a, b) => a.order - b.order);
+    const currentIndex = sortedBlocks.findIndex(b => b.id === selectedBlock.id);
+    
+    if (currentIndex >= sortedBlocks.length - 1) return; // Already at the bottom
+    
+    const updatedBlocks = lesson.blocks.map(block => {
+      if (block.id === selectedBlock.id) {
+        return { ...block, order: sortedBlocks[currentIndex + 1].order };
+      } else if (block.id === sortedBlocks[currentIndex + 1].id) {
+        return { ...block, order: selectedBlock.order };
+      }
+      return block;
+    });
+    
+    const updatedLesson = { ...lesson, blocks: updatedBlocks };
+    onLessonUpdate(updatedLesson);
+  };
+
+  const handleDeleteBlock = () => {
+    if (!selectedBlock) {
+      alert('Выберите блок для удаления');
+      return;
+    }
+    if (window.confirm(`Вы уверены, что хотите удалить блок "${selectedBlock.type}"? Это действие нельзя отменить.`)) {
+      deleteBlock(selectedBlock.id);
+    }
+  };
+
+  const handleCopyBlock = () => {
+    if (!selectedBlock) {
+      alert('Выберите блок для копирования');
+      return;
+    }
+    duplicateBlock(selectedBlock.id);
+  };
+
+  const handleBlockDoubleClick = () => {
+    setSelectedBlock(null);
   };
 
   return (
@@ -141,44 +228,64 @@ export function LessonEditor({ lesson, onLessonUpdate }: LessonEditorProps) {
         <div className="bg-card border-b border-border p-4">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" title="Ссылка на урок">
                 <Link className="w-4 h-4" />
               </Button>
-              <Button variant="ghost" size="sm">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={moveBlockUp}
+                disabled={!selectedBlock}
+                title="Переместить блок вверх"
+              >
                 <ArrowUp className="w-4 h-4" />
               </Button>
-              <Button variant="ghost" size="sm">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={moveBlockDown}
+                disabled={!selectedBlock}
+                title="Переместить блок вниз"
+              >
                 <ArrowDown className="w-4 h-4" />
               </Button>
-              <Button variant="ghost" size="sm">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={handleCopyBlock}
+                disabled={!selectedBlock}
+                title="Копировать выбранный блок"
+              >
                 <Copy className="w-4 h-4" />
               </Button>
-              <Button variant="ghost" size="sm">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={handleDeleteBlock}
+                disabled={!selectedBlock}
+                title="Удалить выбранный блок"
+                className="text-destructive hover:text-destructive"
+              >
                 <Trash2 className="w-4 h-4" />
               </Button>
               <Separator orientation="vertical" className="h-6" />
               <StatusIcon status={lesson.status} />
             </div>
             <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                {isSaving ? (
-                  <>
-                    <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
-                    <span>Сохранение...</span>
-                  </>
-                ) : (
-                  <>
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span>Сохранено</span>
-                  </>
-                )}
-              </div>
               <Button variant="ghost" size="sm">
                 <Undo className="w-4 h-4" />
               </Button>
               <Button variant="ghost" size="sm">
                 <Redo className="w-4 h-4" />
               </Button>
+              <Separator orientation="vertical" className="h-6" />
+              <SaveStatusIndicator 
+                status={saveStatus} 
+                lastSaved={lastSaved}
+                errorMessage={errorMessage}
+                onRetry={forceSave}
+                className="text-xs"
+              />
             </div>
           </div>
 
@@ -247,6 +354,7 @@ export function LessonEditor({ lesson, onLessonUpdate }: LessonEditorProps) {
                 onDragStart={handleDragStart}
                 onDragOver={handleDragOver}
                 onDrop={handleDrop}
+                onDoubleClick={handleBlockDoubleClick}
               />
             ))
           )}
