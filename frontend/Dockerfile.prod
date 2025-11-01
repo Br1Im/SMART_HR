@@ -19,7 +19,7 @@ ENV PATH="/app/node_modules/.bin:$PATH"
 COPY . .
 
 # Собираем приложение
-RUN npm run build
+RUN ./node_modules/.bin/vite build
 
 # Проверяем, что dist создался
 RUN ls -la /app/dist
