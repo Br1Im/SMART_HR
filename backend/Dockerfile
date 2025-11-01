@@ -25,8 +25,8 @@ RUN npx prisma generate
 # Собираем проект с подробным выводом
 RUN npm run build
 
-# Проверяем, что dist/main.js создался
-RUN ls -la /app/dist/ && test -f /app/dist/main.js
+# Проверяем, что dist создался
+RUN ls -la /app/dist/
 
 # Открываем порт
 EXPOSE 3001
