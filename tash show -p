@@ -1,0 +1,374 @@
+[1mdiff --git a/backend/Dockerfile b/backend/Dockerfile[m
+[1mindex 4f383365..52925ae0 100644[m
+[1m--- a/backend/Dockerfile[m
+[1m+++ b/backend/Dockerfile[m
+[36m@@ -1,7 +1,7 @@[m
+[31m-# Backend Dockerfile[m
+[32m+[m[32m# Используем официальный образ Node.js[m
+ FROM node:18-alpine[m
+ [m
+[31m-# Устанавливаем необходимые зависимости для Prisma[m
+[32m+[m[32m# Устанавливаем OpenSSL для Prisma[m
+ RUN apk add --no-cache openssl[m
+ [m
+ # Устанавливаем рабочую директорию[m
+[36m@@ -10,30 +10,23 @@[m [mWORKDIR /app[m
+ # Копируем package.json и package-lock.json[m
+ COPY package*.json ./[m
+ [m
+[31m-# Устанавливаем все зависимости (включая dev для сборки)[m
+[32m+[m[32m# Устанавливаем зависимости[m
+ RUN npm ci && npm cache clean --force[m
+ [m
+ # Копируем исходный код[m
+ COPY . .[m
+ [m
+[32m+[m[32m# Устанавливаем права на выполнение для node_modules/.bin[m
+[32m+[m[32mRUN chmod -R 755 node_modules/.bin[m
+[32m+[m
+ # Генерируем Prisma клиент[m
+ RUN npx prisma generate[m
+ [m
+ # Собираем проект[m
+ RUN npm run build[m
+ [m
+[31m-# Удаляем dev зависимости после сборки[m
+[31m-RUN npm ci --only=production && npm cache clean --force[m
+[31m-[m
+[31m-# Создаем пользователя для безопасности[m
+[31m-RUN addgroup -g 1001 -S nodejs[m
+[31m-RUN adduser -S nestjs -u 1001[m
+[31m-[m
+[31m-# Меняем владельца файлов[m
+[31m-USER nestjs[m
+[31m-[m
+ # Открываем порт[m
+ EXPOSE 3001[m
+ [m
+[31m-# Команда для запуска[m
+[31m-CMD ["npm", "run", "start:prod"][m
+\ No newline at end of file[m
+[32m+[m[32m# Запускаем приложение[m
+[32m+[m[32mCMD ["npm", "run", "start:prod"][m
+[1mdiff --git a/backend/package.json b/backend/package.json[m
+[1mindex 8c725c80..54d9083c 100644[m
+[1m--- a/backend/package.json[m
+[1m+++ b/backend/package.json[m
+[36m@@ -2,14 +2,14 @@[m
+   "name": "smartcourse-backend",[m
+   "version": "1.0.0",[m
+   "description": "SmartCourse Backend API",[m
+[31m-  "main": "dist/main.js",[m
+[32m+[m[32m  "main": "dist/src/main.js",[m
+   "scripts": {[m
+     "build": "nest build",[m
+     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",[m
+     "start": "nest start",[m
+     "start:dev": "nest start --watch",[m
+     "start:debug": "nest start --debug --watch",[m
+[31m-    "start:prod": "node dist/main",[m
+[32m+[m[32m    "start:prod": "node dist/src/main",[m
+     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",[m
+     "test": "jest",[m
+     "test:watch": "jest --watch",[m
+[36m@@ -87,4 +87,4 @@[m
+   "prisma": {[m
+     "seed": "ts-node prisma/seed.ts"[m
+   }[m
+[31m-}[m
+\ No newline at end of file[m
+[32m+[m[32m}[m
+[1mdiff --git a/backend/prisma/migrations/20251031122128_make_entityid_optional/migration.sql b/backend/prisma/migrations/20251031122128_make_entityid_optional/migration.sql[m
+[1mdeleted file mode 100644[m
+[1mindex eef9ab15..00000000[m
+[1m--- a/backend/prisma/migrations/20251031122128_make_entityid_optional/migration.sql[m
+[1m+++ /dev/null[m
+[36m@@ -1,99 +0,0 @@[m
+[31m--- CreateTable[m
+[31m-CREATE TABLE "users" ([m
+[31m-    "id" TEXT NOT NULL PRIMARY KEY,[m
+[31m-    "email" TEXT NOT NULL,[m
+[31m-    "password" TEXT NOT NULL,[m
+[31m-    "fullName" TEXT NOT NULL,[m
+[31m-    "role" TEXT NOT NULL DEFAULT 'CANDIDATE',[m
+[31m-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,[m
+[31m-    "updatedAt" DATETIME NOT NULL[m
+[31m-);[m
+[31m-[m
+[31m--- CreateTable[m
+[31m-CREATE TABLE "organizations" ([m
+[31m-    "id" TEXT NOT NULL PRIMARY KEY,[m
+[31m-    "name" TEXT NOT NULL,[m
+[31m-    "inn" TEXT NOT NULL,[m
+[31m-    "site" TEXT,[m
+[31m-    "status" TEXT NOT NULL DEFAULT 'active',[m
+[31m-    "ownerId" TEXT NOT NULL,[m
+[31m-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,[m
+[31m-    "updatedAt" DATETIME NOT NULL,[m
+[31m-    CONSTRAINT "organizations_ownerId_fkey" FOREIGN KEY ("ownerId") REFERENCES "users" ("id") ON DELETE CASCADE ON UPDATE CASCADE[m
+[31m-);[m
+[31m-[m
+[31m--- CreateTable[m
+[31m-CREATE TABLE "contacts" ([m
+[31m-    "id" TEXT NOT NULL PRIMARY KEY,[m
+[31m-    "fullName" TEXT NOT NULL,[m
+[31m-    "email" TEXT NOT NULL,[m
+[31m-    "phone" TEXT,[m
+[31m-    "role" TEXT,[m
+[31m-    "orgId" TEXT NOT NULL,[m
+[31m-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,[m
+[31m-    "updatedAt" DATETIME NOT NULL,[m
+[31m-    CONSTRAINT "contacts_orgId_fkey" FOREIGN KEY ("orgId") REFERENCES "organizations" ("id") ON DELETE CASCADE ON UPDATE CASCADE[m
+[31m-);[m
+[31m-[m
+[31m--- CreateTable[m
+[31m-CREATE TABLE "audit_logs" ([m
+[31m-    "id" TEXT NOT NULL PRIMARY KEY,[m
+[31m-    "userId" TEXT NOT NULL,[m
+[31m-    "action" TEXT NOT NULL,[m
+[31m-    "entity" TEXT NOT NULL,[m
+[31m-    "entityId" TEXT,[m
+[31m-    "details" TEXT,[m
+[31m-    "timestamp" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,[m
+[31m-    CONSTRAINT "audit_logs_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users" ("id") ON DELETE CASCADE ON UPDATE CASCADE[m
+[31m-);[m
+[31m-[m
+[31m--- CreateTable[m
+[31m-CREATE TABLE "consents" ([m
+[31m-    "id" TEXT NOT NULL PRIMARY KEY,[m
+[31m-    "userId" TEXT NOT NULL,[m
+[31m-    "type" TEXT NOT NULL,[m
+[31m-    "grantedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,[m
+[31m-    "basis" TEXT NOT NULL,[m
+[31m-    "details" TEXT,[m
+[31m-    CONSTRAINT "consents_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users" ("id") ON DELETE CASCADE ON UPDATE CASCADE[m
+[31m-);[m
+[31m-[m
+[31m--- CreateTable[m
+[31m-CREATE TABLE "courses" ([m
+[31m-    "id" TEXT NOT NULL PRIMARY KEY,[m
+[31m-    "title" TEXT NOT NULL,[m
+[31m-    "description" TEXT,[m
+[31m-    "price" REAL,[m
+[31m-    "duration" INTEGER,[m
+[31m-    "level" TEXT NOT NULL DEFAULT 'BEGINNER',[m
+[31m-    "isPublished" BOOLEAN NOT NULL DEFAULT false,[m
+[31m-    "authorId" TEXT NOT NULL,[m
+[31m-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,[m
+[31m-    "updatedAt" DATETIME NOT NULL,[m
+[31m-    CONSTRAINT "courses_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "users" ("id") ON DELETE CASCADE ON UPDATE CASCADE[m
+[31m-);[m
+[31m-[m
+[31m--- CreateTable[m
+[31m-CREATE TABLE "blocks" ([m
+[31m-    "id" TEXT NOT NULL PRIMARY KEY,[m
+[31m-    "title" TEXT NOT NULL,[m
+[31m-    "content" TEXT,[m
+[31m-    "type" TEXT NOT NULL DEFAULT 'TEXT',[m
+[31m-    "position" INTEGER NOT NULL,[m
+[31m-    "courseId" TEXT NOT NULL,[m
+[31m-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,[m
+[31m-    "updatedAt" DATETIME NOT NULL,[m
+[31m-    CONSTRAINT "blocks_courseId_fkey" FOREIGN KEY ("courseId") REFERENCES "courses" ("id") ON DELETE CASCADE ON UPDATE CASCADE[m
+[31m-);[m
+[31m-[m
+[31m--- CreateIndex[m
+[31m-CREATE UNIQUE INDEX "users_email_key" ON "users"("email");[m
+[31m-[m
+[31m--- CreateIndex[m
+[31m-CREATE UNIQUE INDEX "organizations_inn_key" ON "organizations"("inn");[m
+[31m-[m
+[31m--- CreateIndex[m
+[31m-CREATE UNIQUE INDEX "contacts_email_key" ON "contacts"("email");[m
+[31m-[m
+[31m--- CreateIndex[m
+[31m-CREATE UNIQUE INDEX "consents_userId_type_key" ON "consents"("userId", "type");[m
+[1mdiff --git a/backend/prisma/migrations/20251031122743_make_audit_userid_optional/migration.sql b/backend/prisma/migrations/20251031122743_make_audit_userid_optional/migration.sql[m
+[1mdeleted file mode 100644[m
+[1mindex 85e63ecc..00000000[m
+[1m--- a/backend/prisma/migrations/20251031122743_make_audit_userid_optional/migration.sql[m
+[1m+++ /dev/null[m
+[36m@@ -1,18 +0,0 @@[m
+[31m--- RedefineTables[m
+[31m-PRAGMA defer_foreign_keys=ON;[m
+[31m-PRAGMA foreign_keys=OFF;[m
+[31m-CREATE TABLE "new_audit_logs" ([m
+[31m-    "id" TEXT NOT NULL PRIMARY KEY,[m
+[31m-    "userId" TEXT,[m
+[31m-    "action" TEXT NOT NULL,[m
+[31m-    "entity" TEXT NOT NULL,[m
+[31m-    "entityId" TEXT,[m
+[31m-    "details" TEXT,[m
+[31m-    "timestamp" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,[m
+[31m-    CONSTRAINT "audit_logs_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users" ("id") ON DELETE CASCADE ON UPDATE CASCADE[m
+[31m-);[m
+[31m-INSERT INTO "new_audit_logs" ("action", "details", "entity", "entityId", "id", "timestamp", "userId") SELECT "action", "details", "entity", "entityId", "id", "timestamp", "userId" FROM "audit_logs";[m
+[31m-DROP TABLE "audit_logs";[m
+[31m-ALTER TABLE "new_audit_logs" RENAME TO "audit_logs";[m
+[31m-PRAGMA foreign_keys=ON;[m
+[31m-PRAGMA defer_foreign_keys=OFF;[m
+[1mdiff --git a/backend/prisma/migrations/20251101034136_add_favorite_started_courses/migration.sql b/backend/prisma/migrations/20251101034136_add_favorite_started_courses/migration.sql[m
+[1mdeleted file mode 100644[m
+[1mindex de588ec6..00000000[m
+[1m--- a/backend/prisma/migrations/20251101034136_add_favorite_started_courses/migration.sql[m
+[1m+++ /dev/null[m
+[36m@@ -1,26 +0,0 @@[m
+[31m--- CreateTable[m
+[31m-CREATE TABLE "favorite_courses" ([m
+[31m-    "id" TEXT NOT NULL PRIMARY KEY,[m
+[31m-    "userId" TEXT NOT NULL,[m
+[31m-    "courseId" TEXT NOT NULL,[m
+[31m-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,[m
+[31m-    CONSTRAINT "favorite_courses_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users" ("id") ON DELETE CASCADE ON UPDATE CASCADE,[m
+[31m-    CONSTRAINT "favorite_courses_courseId_fkey" FOREIGN KEY ("courseId") REFERENCES "courses" ("id") ON DELETE CASCADE ON UPDATE CASCADE[m
+[31m-);[m
+[31m-[m
+[31m--- CreateTable[m
+[31m-CREATE TABLE "started_courses" ([m
+[31m-    "id" TEXT NOT NULL PRIMARY KEY,[m
+[31m-    "userId" TEXT NOT NULL,[m
+[31m-    "courseId" TEXT NOT NULL,[m
+[31m-    "startedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,[m
+[31m-    "updatedAt" DATETIME NOT NULL,[m
+[31m-    CONSTRAINT "started_courses_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users" ("id") ON DELETE CASCADE ON UPDATE CASCADE,[m
+[31m-    CONSTRAINT "started_courses_courseId_fkey" FOREIGN KEY ("courseId") REFERENCES "courses" ("id") ON DELETE CASCADE ON UPDATE CASCADE[m
+[31m-);[m
+[31m-[m
+[31m--- CreateIndex[m
+[31m-CREATE UNIQUE INDEX "favorite_courses_userId_courseId_key" ON "favorite_courses"("userId", "courseId");[m
+[31m-[m
+[31m--- CreateIndex[m
+[31m-CREATE UNIQUE INDEX "started_courses_userId_courseId_key" ON "started_courses"("userId", "courseId");[m
+[1mdiff --git a/backend/prisma/migrations/20251101101817_add_progress_tables/migration.sql b/backend/prisma/migrations/20251101101817_add_progress_tables/migration.sql[m
+[1mdeleted file mode 100644[m
+[1mindex 0ffc6c36..00000000[m
+[1m--- a/backend/prisma/migrations/20251101101817_add_progress_tables/migration.sql[m
+[1m+++ /dev/null[m
+[36m@@ -1,36 +0,0 @@[m
+[31m--- CreateTable[m
+[31m-CREATE TABLE "lesson_progress" ([m
+[31m-    "id" TEXT NOT NULL PRIMARY KEY,[m
+[31m-    "userId" TEXT NOT NULL,[m
+[31m-    "lessonId" TEXT NOT NULL,[m
+[31m-    "courseId" TEXT NOT NULL,[m
+[31m-    "isCompleted" BOOLEAN NOT NULL DEFAULT false,[m
+[31m-    "completedAt" DATETIME,[m
+[31m-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,[m
+[31m-    "updatedAt" DATETIME NOT NULL,[m
+[31m-    CONSTRAINT "lesson_progress_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users" ("id") ON DELETE CASCADE ON UPDATE CASCADE,[m
+[31m-    CONSTRAINT "lesson_progress_lessonId_fkey" FOREIGN KEY ("lessonId") REFERENCES "blocks" ("id") ON DELETE CASCADE ON UPDATE CASCADE,[m
+[31m-    CONSTRAINT "lesson_progress_courseId_fkey" FOREIGN KEY ("courseId") REFERENCES "courses" ("id") ON DELETE CASCADE ON UPDATE CASCADE[m
+[31m-);[m
+[31m-[m
+[31m--- CreateTable[m
+[31m-CREATE TABLE "course_progress" ([m
+[31m-    "id" TEXT NOT NULL PRIMARY KEY,[m
+[31m-    "userId" TEXT NOT NULL,[m
+[31m-    "courseId" TEXT NOT NULL,[m
+[31m-    "completedLessons" INTEGER NOT NULL DEFAULT 0,[m
+[31m-    "totalLessons" INTEGER NOT NULL DEFAULT 0,[m
+[31m-    "progressPercent" REAL NOT NULL DEFAULT 0,[m
+[31m-    "isCompleted" BOOLEAN NOT NULL DEFAULT false,[m
+[31m-    "completedAt" DATETIME,[m
+[31m-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,[m
+[31m-    "updatedAt" DATETIME NOT NULL,[m
+[31m-    CONSTRAINT "course_progress_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users" ("id") ON DELETE CASCADE ON UPDATE CASCADE,[m
+[31m-    CONSTRAINT "course_progress_courseId_fkey" FOREIGN KEY ("courseId") REFERENCES "courses" ("id") ON DELETE CASCADE ON UPDATE CASCADE[m
+[31m-);[m
+[31m-[m
+[31m--- CreateIndex[m
+[31m-CREATE UNIQUE INDEX "lesson_progress_userId_lessonId_key" ON "lesson_progress"("userId", "lessonId");[m
+[31m-[m
+[31m--- CreateIndex[m
+[31m-CREATE UNIQUE INDEX "course_progress_userId_courseId_key" ON "course_progress"("userId", "courseId");[m
+[1mdiff --git a/backend/prisma/migrations/migration_lock.toml b/backend/prisma/migrations/migration_lock.toml[m
+[1mdeleted file mode 100644[m
+[1mindex e5e5c470..00000000[m
+[1m--- a/backend/prisma/migrations/migration_lock.toml[m
+[1m+++ /dev/null[m
+[36m@@ -1,3 +0,0 @@[m
+[31m-# Please do not edit this file manually[m
+[31m-# It should be added in your version-control system (i.e. Git)[m
+[31m-provider = "sqlite"[m
+\ No newline at end of file[m
+[1mdiff --git a/backend/prisma/schema.prisma b/backend/prisma/schema.prisma[m
+[1mindex 2c242252..5e7bdc7c 100644[m
+[1m--- a/backend/prisma/schema.prisma[m
+[1m+++ b/backend/prisma/schema.prisma[m
+[36m@@ -6,7 +6,7 @@[m [mgenerator client {[m
+ }[m
+ [m
+ datasource db {[m
+[31m-  provider = "sqlite"[m
+[32m+[m[32m  provider = "postgresql"[m
+   url      = env("DATABASE_URL")[m
+ }[m
+ [m
+[1mdiff --git a/deploy/quick-fix-deploy.sh b/deploy/quick-fix-deploy.sh[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/frontend/Dockerfile.prod b/frontend/Dockerfile.prod[m
+[1mindex 5ede07eb..3b361b9b 100644[m
+[1m--- a/frontend/Dockerfile.prod[m
+[1m+++ b/frontend/Dockerfile.prod[m
+[36m@@ -1,29 +1,31 @@[m
+[31m-# Multi-stage build для production[m
+[31m-FROM node:18-alpine as builder[m
+[32m+[m[32m# Этап сборки[m
+[32m+[m[32mFROM node:18-alpine AS builder[m
+ [m
+[31m-# Устанавливаем рабочую директорию[m
+ WORKDIR /app[m
+ [m
+ # Копируем package.json и package-lock.json[m
+ COPY package*.json ./[m
+ [m
+[31m-# Устанавливаем зависимости[m
+[31m-RUN npm ci --only=production --silent[m
+[32m+[m[32m# Устанавливаем ВСЕ зависимости[m
+[32m+[m[32mRUN npm ci[m
+ [m
+ # Копируем исходный код[m
+ COPY . .[m
+ [m
+[31m-# Устанавливаем права на выполнение для node_modules/.bin[m
+[31m-RUN chmod -R +x node_modules/.bin[m
+[32m+[m[32m# Устанавливаем права на выполнение для всех файлов в node_modules/.bin[m
+[32m+[m[32mRUN chmod -R 755 node_modules/.bin[m
+ [m
+[31m-# Собираем проект[m
+[32m+[m[32m# Собираем приложение[m
+ RUN npm run build[m
+ [m
+[31m-# Production stage с Nginx[m
+[32m+[m[32m# Проверяем, что build создался (не dist!)[m
+[32m+[m[32mRUN ls -la /app/build[m
+[32m+[m
+[32m+[m[32m# Этап production[m
+ FROM nginx:alpine[m
+ [m
+[31m-# Копируем собранное приложение[m
+[31m-COPY --from=builder /app/dist /usr/share/nginx/html[m
+[32m+[m[32m# Копируем собранное приложение из папки build[m
+[32m+[m[32mCOPY --from=builder /app/build /usr/share/nginx/html[m
+ [m
+ # Копируем конфигурацию Nginx[m
+ COPY nginx.conf /etc/nginx/nginx.conf[m
+[36m@@ -32,4 +34,4 @@[m [mCOPY nginx.conf /etc/nginx/nginx.conf[m
+ EXPOSE 80[m
+ [m
+ # Запускаем Nginx[m
+[31m-CMD ["nginx", "-g", "daemon off;"][m
+\ No newline at end of file[m
+[32m+[m[32mCMD ["nginx", "-g", "daemon off;"][m
+[1mdiff --git a/frontend/nginx.conf b/frontend/nginx.conf[m
+[1mindex ccbdf44e..732cb62c 100644[m
+[1m--- a/frontend/nginx.conf[m
+[1m+++ b/frontend/nginx.conf[m
+[36m@@ -60,4 +60,4 @@[m [mhttp {[m
+         add_header X-XSS-Protection "1; mode=block" always;[m
+         add_header Referrer-Policy "strict-origin-when-cross-origin" always;[m
+     }[m
+[31m-}[m
+\ No newline at end of file[m
+[32m+[m[32m}[m
